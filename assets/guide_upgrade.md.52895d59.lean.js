@@ -1,0 +1,1 @@
+import{_ as e,o as a,c as t,d as o}from"./app.77fdb89c.js";const h=JSON.parse('{"title":"\u6846\u67B6\u66F4\u65B0","description":"","frontmatter":{},"headers":[],"relativePath":"guide/upgrade.md"}'),r={name:"guide/upgrade.md"},n=o("",8),p=[n];function i(_,d,s,c,l,u){return a(),t("div",null,p)}var g=e(r,[["render",i]]);export{h as __pageData,g as default};

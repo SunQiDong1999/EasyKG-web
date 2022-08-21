@@ -1,0 +1,1 @@
+import{_ as s,o as a,c as o,d as n}from"./app.77fdb89c.js";const i=JSON.parse('{"title":"\u79C1\u6709 Storage \u6570\u636E","description":"","frontmatter":{},"headers":[],"relativePath":"guide-vue2/storage.md"}'),l={name:"guide-vue2/storage.md"},e=n("",7),p=[e];function t(c,r,A,D,y,F){return a(),o("div",null,p)}var d=s(l,[["render",t]]);export{i as __pageData,d as default};

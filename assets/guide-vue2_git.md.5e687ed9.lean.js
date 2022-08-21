@@ -1,0 +1,1 @@
+import{_ as e,o as t,c as i,d as o}from"./app.77fdb89c.js";const h=JSON.parse('{"title":"Git \u94A9\u5B50","description":"","frontmatter":{},"headers":[],"relativePath":"guide-vue2/git.md"}'),c={name:"guide-vue2/git.md"},a=o("",4),s=[a];function d(n,r,_,p,l,g){return t(),i("div",null,s)}var m=e(c,[["render",d]]);export{h as __pageData,m as default};

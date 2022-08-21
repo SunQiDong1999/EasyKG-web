@@ -1,0 +1,1 @@
+import{_ as s,o as a,c as n,d as l}from"./app.77fdb89c.js";const C=JSON.parse('{"title":"CDN \u652F\u6301","description":"","frontmatter":{},"headers":[],"relativePath":"guide-vue2/cdn.md"}'),p={name:"guide-vue2/cdn.md"},o=l("",12),e=[o];function c(t,r,F,i,d,y){return a(),n("div",null,e)}var u=s(p,[["render",c]]);export{C as __pageData,u as default};

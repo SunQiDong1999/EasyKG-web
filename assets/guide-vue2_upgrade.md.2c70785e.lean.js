@@ -1,0 +1,1 @@
+import{_ as e,o as a,c as t,d as i}from"./app.77fdb89c.js";const h=JSON.parse('{"title":"\u7248\u672C\u5347\u7EA7","description":"","frontmatter":{},"headers":[],"relativePath":"guide-vue2/upgrade.md"}'),o={name:"guide-vue2/upgrade.md"},r=i("",7),_=[r];function n(p,d,c,s,l,u){return a(),t("div",null,_)}var g=e(o,[["render",n]]);export{h as __pageData,g as default};

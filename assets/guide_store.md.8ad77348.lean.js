@@ -1,0 +1,1 @@
+import{_ as s,o as a,c as n,d as e}from"./app.77fdb89c.js";const F=JSON.parse('{"title":"\u5168\u5C40\u72B6\u6001\u7BA1\u7406","description":"","frontmatter":{},"headers":[],"relativePath":"guide/store.md"}'),l={name:"guide/store.md"},p=e("",7),o=[p];function t(r,c,i,D,y,A){return a(),n("div",null,o)}var d=s(l,[["render",t]]);export{F as __pageData,d as default};
