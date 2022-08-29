@@ -3,14 +3,16 @@ import useSettingsStore from '@/store/modules/settings'
 import useKeepAliveStore from '@/store/modules/keepAlive'
 import useUserStore from '@/store/modules/user'
 import useMenuStore from '@/store/modules/menu'
+import useMenuMainStore from '@/store/modules/menuMain';
 import useRouteStore from '@/store/modules/route'
+import useRouteMainStore from '@/store/modules/routeMain'
 
 import '@/assets/styles/nprogress.scss'
 import { useNProgress } from '@vueuse/integrations/useNProgress'
 const { isLoading } = useNProgress()
 
 // 路由相关数据
-import { constantRoutes, asyncRoutes } from './routes'
+import { constantRoutes, asyncRoutes, mainRoutes } from './routes'
 
 const router = createRouter({
     history: createWebHashHistory(),
@@ -21,7 +23,9 @@ router.beforeEach(async(to, from, next) => {
     const settingsStore = useSettingsStore()
     const userStore = useUserStore()
     const menuStore = useMenuStore()
+    const menuMainStore = useMenuMainStore()
     const routeStore = useRouteStore()
+    const routeMainStore = useRouteMainStore()
     settingsStore.app.enableProgress && (isLoading.value = true)
     // 是否已登录
     if (userStore.isLogin) {
@@ -29,7 +33,9 @@ router.beforeEach(async(to, from, next) => {
         if (routeStore.isGenerate) {
             // 导航栏如果不是 single 模式，则需要根据 path 定位主导航的选中状态
             settingsStore.menu.menuMode !== 'single' && menuStore.setActived(to.path)
+            menuMainStore.setActived(to.path)
             if (to.name) {
+                console.log(to)
                 if (to.matched.length !== 0) {
                     // 如果已登录状态下，进入登录页会强制跳转到控制台页面
                     if (to.name == 'login') {
@@ -63,6 +69,7 @@ router.beforeEach(async(to, from, next) => {
             switch (settingsStore.app.routeBaseOn) {
                 case 'frontend':
                     await routeStore.generateRoutesAtFront(asyncRoutes)
+                    await routeMainStore.generateMainRoutesAtFront(mainRoutes)
                     break
                 case 'backend':
                     await routeStore.generateRoutesAtBack()
@@ -85,13 +92,22 @@ router.beforeEach(async(to, from, next) => {
                     removeRoutes.push(router.addRoute(route))
                 }
             })
+            routeMainStore.flatRoutes.forEach(route => {
+                if (!/^(https?:|mailto:|tel:)/.test(route.path)) {
+                    removeRoutes.push(router.addRoute(route))
+                }
+            })
             if (settingsStore.app.routeBaseOn !== 'filesystem') {
                 routeStore.flatSystemRoutes.forEach(route => {
+                    removeRoutes.push(router.addRoute(route))
+                })
+                routeMainStore.flatSystemRoutes.forEach(route => {
                     removeRoutes.push(router.addRoute(route))
                 })
             }
             // 记录的 accessRoutes 路由数据，在登出时会使用到，不使用 router.removeRoute 是考虑配置的路由可能不一定有设置 name ，则通过调用 router.addRoute() 返回的回调进行删除
             routeStore.setCurrentRemoveRoutes(removeRoutes)
+            routeMainStore.setCurrentRemoveRoutes(removeRoutes)
             next({
                 path: to.fullPath,
                 query: to.query,

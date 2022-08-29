@@ -1,4 +1,4 @@
-<script setup name="Logo">
+<script setup name="LogoMain">
 import imgLogo from '@/assets/images/logo.png'
 import useSettingsStore from '@/store/modules/settings'
 
@@ -15,7 +15,7 @@ defineProps({
     }
 })
 
-const title = ref('示例项目')
+const title = ref(import.meta.env.VITE_APP_TITLE)
 const logo = ref(imgLogo)
 
 const to = computed(() => {

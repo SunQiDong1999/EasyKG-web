@@ -5,7 +5,7 @@ import useSettingsStore from '@/store/modules/settings'
 let constantRoutes = [
     {
         path: '/',
-        redirect: '/dashboard'
+        redirect: '/projects'
     },
     {
         path: '/login',
@@ -101,43 +101,37 @@ let systemRoutes = [
     }
 ]
 
-import MultilevelMenuExample from './modules/multilevel.menu.example'
-import BreadcrumbExample from './modules/breadcrumb.example'
-import KeepAliveExample from './modules/keep.alive.example'
-import ComponentBasicExample from './modules/component.basic.example'
-import ComponentExtendExample from './modules/component.extend.example'
-import PermissionExample from './modules/permission.example'
-import MockExample from './modules/mock.example'
-import JsxExample from './modules/jsx.example'
-import ExternalLinkExample from './modules/external.link.example'
-import EcologyExample from './modules/ecology.example'
+import ontology from '@/router/modules/ontology'
+import graph from '@/router/modules/graph'
+import model from '@/router/modules/model'
 
 // 动态路由（异步路由、导航栏路由）
 let asyncRoutes = [
     {
         meta: {
-            title: '演示',
-            icon: 'sidebar-default'
+            title: '项目工作台',
+            icon: 'dashboard'
         },
         children: [
-            MultilevelMenuExample,
-            BreadcrumbExample,
-            KeepAliveExample,
-            ComponentBasicExample,
-            ComponentExtendExample,
-            PermissionExample,
-            MockExample,
-            JsxExample,
-            ExternalLinkExample
+            ontology,
+            graph,
+            model
         ]
-    },
+    }
+]
+
+import projects from '@/router/modules/main/projects'
+import kgs from '@/router/modules/main/kgs'
+// 主页路由
+let mainRoutes = [
     {
         meta: {
-            title: '生态',
+            title: '首页',
             icon: 'sidebar-ecology'
         },
         children: [
-            ...EcologyExample
+            projects,
+            kgs
         ]
     }
 ]
@@ -152,10 +146,14 @@ if (useSettingsStore(pinia).app.routeBaseOn === 'filesystem') {
     asyncRoutes = setupLayouts(generatedRoutes.filter(item => {
         return item.meta?.enabled !== false && item.meta?.constant !== true && item.meta?.layout !== false
     }))
+    mainRoutes = setupLayouts(generatedRoutes.filter(item => {
+        return item.meta?.enabled !== false && item.meta?.constant !== true && item.meta?.layout !== false
+    }))
 }
 
 export {
     constantRoutes,
     systemRoutes,
-    asyncRoutes
+    asyncRoutes,
+    mainRoutes
 }

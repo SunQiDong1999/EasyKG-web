@@ -23,7 +23,7 @@ let globalSettings = {
     // 控制台
     dashboard: {
         // 是否开启
-        enable: true,
+        enable: false,
         // 控制台名称
         title: '控制台'
     },
@@ -46,7 +46,7 @@ let globalSettings = {
          * head 顶部模式
          * single 侧边栏模式（无主导航）
          */
-        menuMode: 'side',
+        menuMode: 'single',
         // 切换主导航同时跳转页面
         switchMainMenuAndPageJump: false,
         // 次导航只保持一个子项的展开

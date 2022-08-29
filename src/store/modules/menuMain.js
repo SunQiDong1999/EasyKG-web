@@ -5,7 +5,7 @@ import menu from '@/menu'
 
 import useSettingsStore from './settings'
 import useUserStore from './user'
-import useRouteStore from './route'
+import useRouteMainStore from './routeMain'
 
 function getDeepestPath(routes, rootPath = '') {
     let retnPath
@@ -64,9 +64,9 @@ function filterAsyncMenus(menus, permissions) {
     return res
 }
 
-const useMenuStore = defineStore(
+const useMenuMainStore = defineStore(
     // 唯一ID
-    'menu',
+    'menuMain',
     {
         state: () => ({
             menus: [],
@@ -78,7 +78,7 @@ const useMenuStore = defineStore(
                 const settingsStore = useSettingsStore()
                 let menus
                 if (settingsStore.app.routeBaseOn !== 'filesystem') {
-                    const routeStore = useRouteStore()
+                    const routeStore = useRouteMainStore()
                     if (settingsStore.menu.menuMode === 'single') {
                         menus = [{ children: [] }]
                         routeStore.routes.map(item => {
@@ -105,7 +105,7 @@ const useMenuStore = defineStore(
                 const settingsStore = useSettingsStore()
                 let defaultOpenedPaths = []
                 if (settingsStore.app.routeBaseOn !== 'filesystem') {
-                    const routeStore = useRouteStore()
+                    const routeStore = useRouteMainStore()
                     routeStore.routes.map(item => {
                         item.meta.defaultOpened && defaultOpenedPaths.push(item.path)
                         item.children && item.children.map(child => {
@@ -178,4 +178,4 @@ const useMenuStore = defineStore(
     }
 )
 
-export default useMenuStore
+export default useMenuMainStore

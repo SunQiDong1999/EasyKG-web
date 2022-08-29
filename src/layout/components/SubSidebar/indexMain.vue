@@ -1,11 +1,11 @@
-<script setup name="SubSidebar">
-import Logo from '../Logo/index.vue'
+<script setup name="SubSidebarMain">
+import LogoMain from '../Logo/indexMain.vue'
 import SidebarItem from '../SidebarItem/index.vue'
 import useSettingsStore from '@/store/modules/settings'
-import useMenuStore from '@/store/modules/menu'
+import useMenuMainStore from '@/store/modules/menuMain'
 
 const settingsStore = useSettingsStore()
-const menuStore = useMenuStore()
+const menuStore = useMenuMainStore()
 
 const sidebarScrollTop = ref(0)
 
@@ -16,22 +16,17 @@ function onSidebarScroll(e) {
 
 <template>
     <div v-if="['side', 'head', 'single'].includes(settingsStore.menu.menuMode) || settingsStore.mode === 'mobile'" class="sub-sidebar-container" :class="{'is-collapse': settingsStore.mode === 'pc' && settingsStore.menu.subMenuCollapse}" @scroll="onSidebarScroll">
-        <Logo
-            :show-logo="settingsStore.menu.menuMode === 'single'"
+        <LogoMain
+            :show-logo="true"
             :class="{
                 'sidebar-logo': true,
-                'sidebar-logo-bg': settingsStore.menu.menuMode === 'single',
+                'sidebar-logo-bg': true,
                 'shadow': sidebarScrollTop
             }"
         />
         <!-- 侧边栏模式（无主导航） -->
         <el-menu
-            :unique-opened="settingsStore.menu.subMenuUniqueOpened"
-            :default-openeds="menuStore.defaultOpenedPaths"
-            default-active="$route.meta.activeMenu || $route.path"
-            :collapse="settingsStore.mode === 'pc' && settingsStore.menu.subMenuCollapse"
-            :collapse-transition="false"
-            :class="{
+            :unique-opened="settingsStore.menu.subMenuUniqueOpened" :default-openeds="menuStore.defaultOpenedPaths" :default-active="$route.meta.activeMenu || $route.path" :collapse="settingsStore.mode === 'pc' && settingsStore.menu.subMenuCollapse" :collapse-transition="false" :class="{
                 'is-collapse-without-logo': settingsStore.menu.menuMode !== 'single' && settingsStore.menu.subMenuCollapse
             }"
         >
