@@ -1,24 +1,24 @@
 const Layout = () => import('@/layout/index.vue')
 
 export default {
-    path: '/graph',
+    path: '/overview',
     component: Layout,
-    redirect: '/graph/index',
-    name: 'graph',
+    redirect: '/overview',
+    name: 'overview',
     meta: {
-        title: '图谱管理',
-        icon: 'graph'
+        title: '项目概览',
+        icon: 'overview'
     },
     children: [
         {
-            path: 'index',
-            name: 'graphIndex',
-            component: () => import('@/views/graph/index.vue'),
+            path: '',
+            name: 'overviewIndex',
+            component: () => import('@/views/overview/index.vue'),
             meta: {
                 title: '图谱管理',
                 sidebar: false,
                 breadcrumb: false,
-                activeMenu: '/graph'
+                activeMenu: '/overview'
             }
         }
     ]

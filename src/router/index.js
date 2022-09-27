@@ -35,7 +35,6 @@ router.beforeEach(async(to, from, next) => {
             settingsStore.menu.menuMode !== 'single' && menuStore.setActived(to.path)
             menuMainStore.setActived(to.path)
             if (to.name) {
-                console.log(to)
                 if (to.matched.length !== 0) {
                     // 如果已登录状态下，进入登录页会强制跳转到控制台页面
                     if (to.name == 'login') {

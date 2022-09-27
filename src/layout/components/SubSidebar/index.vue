@@ -28,7 +28,7 @@ function onSidebarScroll(e) {
         <el-menu
             :unique-opened="settingsStore.menu.subMenuUniqueOpened"
             :default-openeds="menuStore.defaultOpenedPaths"
-            default-active="$route.meta.activeMenu || $route.path"
+            :default-active="$route.meta.activeMenu || $route.path"
             :collapse="settingsStore.mode === 'pc' && settingsStore.menu.subMenuCollapse"
             :collapse-transition="false"
             :class="{

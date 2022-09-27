@@ -101,9 +101,10 @@ let systemRoutes = [
     }
 ]
 
-import ontology from '@/router/modules/ontology'
-import graph from '@/router/modules/graph'
-import model from '@/router/modules/model'
+import ontologies from '@/router/modules/ontologies'
+import graphs from '@/router/modules/graphs'
+import models from '@/router/modules/models'
+import overview from '@/router/modules/overview'
 
 // 动态路由（异步路由、导航栏路由）
 let asyncRoutes = [
@@ -113,9 +114,10 @@ let asyncRoutes = [
             icon: 'dashboard'
         },
         children: [
-            ontology,
-            graph,
-            model
+            overview,
+            ontologies,
+            graphs,
+            models
         ]
     }
 ]

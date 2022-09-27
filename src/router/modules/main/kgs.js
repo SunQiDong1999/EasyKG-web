@@ -3,7 +3,6 @@ const Layout = () => import('@/layout/indexMain.vue')
 export default {
     path: '/kgs',
     component: Layout,
-    redirect: '/kgs/index',
     name: 'kgs',
     meta: {
         title: 'KG hub',
@@ -11,7 +10,7 @@ export default {
     },
     children: [
         {
-            path: 'index',
+            path: '',
             name: 'kgsIndex',
             component: () => import('@/views/main/kgs/index.vue'),
             meta: {

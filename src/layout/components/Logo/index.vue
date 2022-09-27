@@ -15,21 +15,12 @@ defineProps({
     }
 })
 
-const title = ref('示例项目')
+const title = ref(import.meta.env.VITE_APP_TITLE)
 const logo = ref(imgLogo)
-
-const to = computed(() => {
-    let rtn = {}
-    if (settingsStore.dashboard.enable) {
-        rtn.name = 'dashboard'
-    }
-    rtn.name = 'projects'
-    return rtn
-})
 </script>
 
 <template>
-    <router-link :to="to" class="title" :class="{'is-link': settingsStore.dashboard.enable}" :title="title">
+    <router-link to="/projects" class="title" :class="{'is-link': settingsStore.dashboard.enable}" :title="title">
         <img v-if="showLogo" :src="logo" class="logo">
         <span v-if="showTitle">{{ title }}</span>
     </router-link>

@@ -3,7 +3,6 @@ const Layout = () => import('@/layout/indexMain.vue')
 export default {
     path: '/projects',
     component: Layout,
-    redirect: '/projects/index',
     name: 'projects',
     meta: {
         title: '我的项目',
@@ -11,7 +10,7 @@ export default {
     },
     children: [
         {
-            path: 'index',
+            path: '',
             name: 'projectsIndex',
             component: () => import('@/views/main/projects/index.vue'),
             meta: {
