@@ -27,9 +27,9 @@
                         <span>暂无图谱数据，请点击右上角按钮新增图谱</span>
                     </template>
                     <el-table-column prop="name" label="图谱名称" />
-                    <el-table-column prop="entityNum" label="实体数" />
-                    <el-table-column prop="relationNum" label="关系数" />
-                    <el-table-column prop="subgraphNum" label="子图数" />
+                    <el-table-column prop="entityNum" label="实体数" width="80px" />
+                    <el-table-column prop="relationNum" label="关系数" width="80px" />
+                    <el-table-column prop="subgraphNum" label="子图数" width="80px" />
                     <el-table-column prop="accessedTime" label="上次访问时间" />
                     <el-table-column prop="description" label="图谱描述" />
                     <el-table-column label="操作">
@@ -197,5 +197,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
+.inline-block {
+    display: inline-block;
+}
 </style>

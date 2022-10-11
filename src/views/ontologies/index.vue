@@ -97,8 +97,6 @@
                                         <el-table
                                             :data="ontologyForm.attributes"
                                             highlight-current-row
-                                            :header-cell-style="{'text-align': 'center'}"
-                                            :cell-style="{'text-align': 'center'}"
                                         >
                                             <template #empty>
                                                 <span v-if="ontologyForm.id === -1">请点击</span>
