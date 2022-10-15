@@ -12,16 +12,3 @@ export const updateOntology = ontologyForm => {
         ontologyForm
     )
 }
-
-export const deleteOntology = id => {
-    return api.delete(
-        'ontology/' + id
-    )
-}
-
-export const createOntology = createForm => {
-    return api.post(
-        'ontology',
-        createForm
-    )
-}

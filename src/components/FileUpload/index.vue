@@ -1,4 +1,6 @@
 <script setup name="FileUpload">
+import {ref} from "vue";
+
 const props = defineProps({
     action: {
         type: String,
@@ -18,11 +20,11 @@ const props = defineProps({
     },
     size: {
         type: Number,
-        default: 2
+        default: 5
     },
     max: {
         type: Number,
-        default: 3
+        default: 1
     },
     files: {
         type: Array,
@@ -34,11 +36,11 @@ const props = defineProps({
     },
     ext: {
         type: Array,
-        default: () => ['zip', 'rar']
+        default: () => ['json']
     }
 })
 
-const emit = defineEmits(['on-success'])
+const emit = defineEmits(['on-success', 'http-request'])
 
 function beforeUpload(file) {
     const fileName = file.name.split('.')
@@ -59,10 +61,18 @@ function onExceed() {
 function onSuccess(res, file, fileList) {
     emit('on-success', res, file, fileList)
 }
+const uploadRef = ref()
+function submitUpload() {
+    uploadRef.value.submit()
+}
+function upload(param) {
+    emit('http-request', param)
+}
 </script>
 
 <template>
     <el-upload
+        ref="uploadRef"
         :headers="headers"
         :action="action"
         :data="data"
@@ -72,7 +82,9 @@ function onSuccess(res, file, fileList) {
         :on-success="onSuccess"
         :file-list="files"
         :limit="max"
+        :auto-upload="false"
         drag
+        :http-request="upload"
     >
         <div class="slot">
             <el-icon class="el-icon--upload">
@@ -88,20 +100,11 @@ function onSuccess(res, file, fileList) {
             </div>
         </template>
     </el-upload>
+    <el-button class="ml-3" type="success" @click="submitUpload">
+        upload to server
+    </el-button>
 </template>
 
 <style lang="scss" scoped>
-:deep(.el-upload.is-drag) {
-    display: inline-block;
-    .el-upload-dragger {
-        padding: 0;
-    }
-    &.is-dragover {
-        border-width: 1px;
-    }
-    .slot {
-        width: 300px;
-        padding: 40px 0;
-    }
-}
+
 </style>

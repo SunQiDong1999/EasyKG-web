@@ -34,7 +34,7 @@
                     <el-table-column prop="description" label="图谱描述" />
                     <el-table-column label="操作">
                         <template #default="scope">
-                            <el-button link>
+                            <el-button link @click="uploadDialogOpen(scope.row.id)">
                                 <template #icon>
                                     <el-icon @click="scope">
                                         <svg-icon name="upload" />
@@ -94,6 +94,20 @@
                 </el-form-item>
             </el-form>
         </el-dialog>
+        <el-dialog
+            v-model="uploadDialog.visible"
+            title="上传图谱数据"
+            :draggable="uploadDialog.draggable"
+            :center="uploadDialog.center"
+            @close="uploadDialogClose"
+        >
+            <file-upload
+                :files="uploadDialog.files"
+                action="#"
+                @on-success="uploadSuccess"
+                @http-request="upload"
+            />
+        </el-dialog>
     </div>
 </template>
 
@@ -101,9 +115,9 @@
 
 import { defineComponent } from 'vue'
 import { onMounted, reactive } from 'vue'
-import { getGraphs, getProjectById } from '@/api/project'
-import { createGraph } from '@/api/graph'
+import { createGraph, getGraphs, getProjectById } from '@/api/project'
 import { ElMessage } from 'element-plus'
+import { uploadGraphData } from '@/api/graph'
 
 export default defineComponent({
     name: 'Index',
@@ -149,7 +163,7 @@ export default defineComponent({
         // 新增本体
         const createGraphSubmit = () => {
             console.log(createForm)
-            createGraph(createForm).then(res => {
+            createGraph(project.id, createForm).then(res => {
                 if (res.code === 1000) {
                     ElMessage({
                         message: '新增图谱成功',
@@ -161,7 +175,51 @@ export default defineComponent({
                     graphs.list = res.data
                 })
                 createDialog.visible = false
+            })
+        }
 
+        // 上传数据
+        const uploadDialog = reactive({
+            visible: false,
+            draggable: false,
+            center: true,
+            files: []
+        })
+        const uploadDialogOpen = id => {
+            uploadDialog.visible = true
+            uploadDialog.graphId = id
+        }
+        const uploadDialogClose = () => {
+            console.log('清空')
+        }
+        const upload = param => {
+            const formData = new FormData()
+            formData.append('file', param.file)
+            uploadGraphData(uploadDialog.graphId, formData).then(res => {
+                console.log('上传成功' + res.code)
+                uploadDialog.files = []
+                uploadDialog.visible = false
+                getGraphList()
+            }).catch(res => {
+                console.log('上传失败' + res.code)
+            })
+        }
+        const uploadSuccess = (res, file, fileList) => {
+            if (res.error === '') {
+                uploadDialog.files.push({
+                    name: file.name,
+                    url: res.error === '' ? res.data.path : ''
+                })
+            } else {
+                fileList.pop()
+                ElMessage.warning(res.error)
+            }
+        }
+
+        const getGraphList = () => {
+            getGraphs(project.id).then(res => {
+                graphs.list = res.data
+                console.log(graphs.list)
             })
         }
 
@@ -176,10 +234,7 @@ export default defineComponent({
                 project.typeNum = res.data.typeNum
                 project.graphNum = res.data.graphNum
                 project.modelNum = res.data.modelNum
-            })
-            getGraphs(projectId).then(res => {
-                graphs.list = res.data
-                console.log(graphs.list)
+                getGraphList()
             })
         })
 
@@ -190,14 +245,17 @@ export default defineComponent({
             createForm,
             createGraphClick,
             createDialogClose,
-            createGraphSubmit
+            createGraphSubmit,
+            uploadDialog,
+            uploadDialogOpen,
+            uploadDialogClose,
+            upload,
+            uploadSuccess
         }
     }
 })
 </script>
 
 <style scoped>
-.inline-block {
-    display: inline-block;
-}
+
 </style>

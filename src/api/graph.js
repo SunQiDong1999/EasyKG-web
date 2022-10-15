@@ -1,8 +1,8 @@
 import api from '@/api/index'
 
-export const createGraph = createForm => {
+export const uploadGraphData = (id, data) => {
     return api.post(
-        'graph',
-        createForm
+        'graph/' + id,
+        data
     )
 }

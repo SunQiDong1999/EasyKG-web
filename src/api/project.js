@@ -31,9 +31,29 @@ export const getTypes = id => {
     )
 }
 
+export const deleteOntology = (id, ontologyId) => {
+    return api.delete(
+        'project/' + id + '/ontology/' + ontologyId
+    )
+}
+
+export const createOntology = (id, createForm) => {
+    return api.post(
+        'project/' + id + '/ontology',
+        createForm
+    )
+}
+
 export const getGraphs = id => {
     return api.get(
         'project/' + id + '/graphs'
+    )
+}
+
+export const createGraph = (id, createForm) => {
+    return api.post(
+        'project/' + id + '/graph',
+        createForm
     )
 }
 

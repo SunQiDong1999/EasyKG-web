@@ -182,8 +182,8 @@
 
 <script>
 import { defineComponent, onMounted, reactive } from 'vue'
-import { getLabels, getProjectById, getTypes } from '@/api/project'
-import { createOntology, deleteOntology, getOntologyById, updateOntology } from '@/api/ontology'
+import {createOntology, deleteOntology, getLabels, getProjectById, getTypes} from '@/api/project'
+import { getOntologyById, updateOntology } from '@/api/ontology'
 import { ElMessage } from 'element-plus'
 
 export default defineComponent({
@@ -264,7 +264,7 @@ export default defineComponent({
 
         // 删除本体事件
         const deleteOntologySubmit = () => {
-            deleteOntology(ontologyForm.id).then(res => {
+            deleteOntology(project.id, ontologyForm.id).then(res => {
                 if (res.code === 1000) {
                     ElMessage({
                         message: '删除成功',
@@ -272,18 +272,19 @@ export default defineComponent({
                     })
                 }
                 selectOntology(ontologyForm.parentId)
-            })
-            // 重新获取labels和types列表
-            getLabels(project.id).then(res => {
-                labels.list = [...res.data]
-            })
-            getTypes(project.id).then(res => {
-                types.list = [...res.data]
+                // 重新获取labels和types列表
+                getLabels(project.id).then(res => {
+                    labels.list = [...res.data]
+                })
+                getTypes(project.id).then(res => {
+                    types.list = [...res.data]
+                })
             })
         }
 
         // 添加一条属性
         const addRow = index => {
+            console.log(index)
             ontologyForm.attributes.splice(index + 1, 0, {
                 id: -1,
                 ontologyId: ontologyForm.id,
@@ -336,7 +337,7 @@ export default defineComponent({
         // 新增本体
         const createOntologySubmit = () => {
             console.log(createForm)
-            createOntology(createForm).then(res => {
+            createOntology(project.id, createForm).then(res => {
                 if (res.code === 1000) {
                     ElMessage({
                         message: '新增本体成功',
