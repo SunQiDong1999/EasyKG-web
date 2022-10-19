@@ -1,8 +1,9 @@
-import api from '@/api'
+// import api from '@/api'
 
 import useRouteStore from './route'
 import useMenuStore from './menu'
-import { getPermissions, login } from '@/api/user'
+import { getPermissions, login, editPassword } from '@/api/user'
+// import { resolve } from 'path-browserify'
 
 const useUserStore = defineStore(
     // 唯一ID
@@ -64,15 +65,13 @@ const useUserStore = defineStore(
                 })
             },
             editPassword(data) {
-                return new Promise(resolve => {
-                    api.post('member/edit/password', {
-                        account: this.account,
-                        password: data.password,
-                        newpassword: data.newpassword
-                    }, {
-                        baseURL: '/mock/'
-                    }).then(() => {
+                return new Promise((resolve, reject) => {
+                    console.log('data', data)
+                    editPassword(data).then(res => {
+                        console.log(res)
                         resolve()
+                    }).catch(error => {
+                        reject(error)
                     })
                 })
             }
