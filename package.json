@@ -18,12 +18,14 @@
         "preinstall": "npx only-allow pnpm"
     },
     "dependencies": {
+        "@antv/g6": "^4.7.8",
         "@tinymce/tinymce-vue": "^5.0.0",
         "@vueuse/core": "^9.1.0",
         "@vueuse/integrations": "^9.1.0",
         "axios": "^0.27.2",
         "dayjs": "^1.11.5",
         "element-plus": "^2.2.14",
+        "eslint": "^8.25.0",
         "hotkeys-js": "^3.9.4",
         "js-cookie": "^3.0.1",
         "mavon-editor": "^3.0.0-beta",
@@ -33,7 +35,9 @@
         "path-browserify": "^1.0.1",
         "path-to-regexp": "^6.2.1",
         "pinia": "^2.0.19",
+        "postcss": "^8.4.18",
         "qs": "^6.11.0",
+        "rollup": "^3.2.0",
         "tinymce": "^6.1.2",
         "vue": "^3.2.37",
         "vue-router": "^4.1.3"
@@ -44,7 +48,6 @@
         "@vitejs/plugin-vue": "^3.0.3",
         "@vitejs/plugin-vue-jsx": "^2.0.0",
         "@vue/compiler-sfc": "^3.2.37",
-        "eslint": "^8.22.0",
         "eslint-plugin-vue": "^9.3.0",
         "esno": "^0.16.3",
         "fs-extra": "^10.1.0",

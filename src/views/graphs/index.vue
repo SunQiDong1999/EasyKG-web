@@ -41,14 +41,14 @@
                                     </el-icon>
                                 </template>
                             </el-button>
-                            <el-button link>
+                            <el-button link @click="toTableview(scope.row.id)">
                                 <template #icon>
                                     <el-icon @click="scope">
                                         <svg-icon name="tablevis" />
                                     </el-icon>
                                 </template>
                             </el-button>
-                            <el-button link>
+                            <el-button link @click="toGraphview(scope.row.id)">
                                 <template #icon>
                                     <el-icon @click="scope">
                                         <svg-icon name="graphvis" />
@@ -118,6 +118,7 @@ import { onMounted, reactive } from 'vue'
 import { createGraph, getGraphs, getProjectById } from '@/api/project'
 import { ElMessage } from 'element-plus'
 import { uploadGraphData } from '@/api/graph'
+import {useRouter} from "vue-router/dist/vue-router";
 
 export default defineComponent({
     name: 'Index',
@@ -223,6 +224,26 @@ export default defineComponent({
             })
         }
 
+        const router = useRouter()
+
+        const toTableview = id => {
+            router.push({
+                name: 'tableview',
+                params: {
+                    id: id
+                }
+            })
+        }
+
+        const toGraphview = id => {
+            router.push({
+                name: 'graphview',
+                params: {
+                    id: id
+                }
+            })
+        }
+
         onMounted(() => {
             // 从本体存储中读取出projectId
             const projectId = localStorage.getItem('projectId')
@@ -250,7 +271,9 @@ export default defineComponent({
             uploadDialogOpen,
             uploadDialogClose,
             upload,
-            uploadSuccess
+            uploadSuccess,
+            toTableview,
+            toGraphview
         }
     }
 })

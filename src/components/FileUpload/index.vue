@@ -1,5 +1,5 @@
 <script setup name="FileUpload">
-import {ref} from "vue";
+import { ref } from 'vue'
 
 const props = defineProps({
     action: {
@@ -88,7 +88,7 @@ function upload(param) {
     >
         <div class="slot">
             <el-icon class="el-icon--upload">
-                <svg-icon name="ep:upload-filled" />
+                <svg-icon name="cloud" />
             </el-icon>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
         </div>

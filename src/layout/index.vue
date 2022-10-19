@@ -79,7 +79,7 @@ onUnmounted(() => {
         </div>
         <Search />
         <AppSetting />
-        <BuyIt />
+        <!--        <BuyIt />-->
     </div>
 </template>
 

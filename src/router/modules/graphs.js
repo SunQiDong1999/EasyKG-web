@@ -19,6 +19,28 @@ export default {
                 breadcrumb: false,
                 activeMenu: '/graphs'
             }
+        },
+        {
+            path: '/tableview/:id',
+            name: 'tableview',
+            component: () => import('@/views/graphs/tableview.vue'),
+            meta: {
+                title: '列表视图',
+                sidebar: false,
+                breadcrumb: true,
+                activeMenu: '/graphs'
+            }
+        },
+        {
+            path: '/graphview/:id',
+            name: 'graphview',
+            component: () => import('@/views/graphs/graphview.vue'),
+            meta: {
+                title: '图谱视图',
+                sidebar: false,
+                breadcrumb: true,
+                activeMenu: '/graphs'
+            }
         }
     ]
 }
