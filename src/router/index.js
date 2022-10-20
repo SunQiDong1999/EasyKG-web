@@ -3,7 +3,7 @@ import useSettingsStore from '@/store/modules/settings'
 import useKeepAliveStore from '@/store/modules/keepAlive'
 import useUserStore from '@/store/modules/user'
 import useMenuStore from '@/store/modules/menu'
-import useMenuMainStore from '@/store/modules/menuMain';
+import useMenuMainStore from '@/store/modules/menuMain'
 import useRouteStore from '@/store/modules/route'
 import useRouteMainStore from '@/store/modules/routeMain'
 
@@ -65,6 +65,7 @@ router.beforeEach(async(to, from, next) => {
                 next()
             }
         } else {
+            // console.log(settingsStore.app.routeBaseOn)
             switch (settingsStore.app.routeBaseOn) {
                 case 'frontend':
                     await routeStore.generateRoutesAtFront(asyncRoutes)
@@ -75,6 +76,7 @@ router.beforeEach(async(to, from, next) => {
                     break
                 case 'filesystem':
                     await routeStore.generateRoutesAtFilesystem(asyncRoutes)
+                    await routeMainStore.generateMainRoutesAtFront(mainRoutes)
                     switch (settingsStore.menu.baseOn) {
                         case 'frontend':
                             await menuStore.generateMenusAtFront()

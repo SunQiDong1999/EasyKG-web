@@ -49,7 +49,7 @@
                     </el-menu>
                 </el-aside>
                 <el-container>
-                    <el-header style="text-align: right; font-size: 12px">
+                    <el-header style="text-align: right; font-size: 12px;">
                         <div class="toolbar">
                             <el-space>
                                 <el-button type="primary" round @click="onSubmit">保存</el-button>
@@ -66,6 +66,7 @@
                                             <span>继承关系图</span>
                                         </div>
                                     </template>
+                                    <div id="InheritanceGraph" />
                                 </el-card>
                             </el-main>
                         </el-container>
@@ -79,20 +80,20 @@
                                             </div>
                                         </template>
                                         <el-form-item label="名称">
-                                            <el-input v-model="ontologyForm.name" style="width: 50%" />
+                                            <el-input v-model="ontologyForm.name" style="width: 50%;" />
                                         </el-form-item>
                                         <el-form-item v-if="ontologyForm.type === 0" label="父类">
-                                            <el-select v-model="ontologyForm.parentId" style="width: 50%">
+                                            <el-select v-model="ontologyForm.parentId" style="width: 50%;">
                                                 <el-option v-for="label in labels.list" :key="label.id" :label="label.name" :value="label.id" />
                                             </el-select>
                                         </el-form-item>
                                         <el-form-item v-if="ontologyForm.type === 1" label="父类">
-                                            <el-select v-model="ontologyForm.parentId" style="width: 50%">
+                                            <el-select v-model="ontologyForm.parentId" style="width: 50%;">
                                                 <el-option v-for="type in types.list" :key="type.id" :label="type.name" :value="type.id" />
                                             </el-select>
                                         </el-form-item>
                                         <el-form-item label="描述">
-                                            <el-input v-model="ontologyForm.description" style="width: 50%" />
+                                            <el-input v-model="ontologyForm.description" style="width: 50%;" />
                                         </el-form-item>
                                         <el-table
                                             :data="ontologyForm.attributes"
@@ -181,14 +182,17 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, reactive } from 'vue'
-import {createOntology, deleteOntology, getLabels, getProjectById, getTypes} from '@/api/project'
-import { getOntologyById, updateOntology } from '@/api/ontology'
+import { defineComponent, onMounted, reactive, ref } from 'vue'
+import { createOntology, deleteOntology, getLabels, getProjectById, getTypes } from '@/api/project'
+import { getOntologyById, updateOntology, getInheritanceDataById } from '@/api/ontology'
 import { ElMessage } from 'element-plus'
+import G6 from '@antv/g6'
 
 export default defineComponent({
     name: 'Index',
     setup() {
+        // 图
+        const graph = ref(null)
         // 属性类型的选项
         const attributeTypeOptions = [
             { value: 0, label: 'string' },
@@ -246,6 +250,10 @@ export default defineComponent({
                 ontologyForm.description = res.data.description
                 ontologyForm.createdTime = res.data.createdTime
                 ontologyForm.attributes = res.data.attributes
+            })
+            getInheritanceDataById(index).then(res => {
+                console.log(res)
+                createInheritanceGraph(res.data)
             })
         }
 
@@ -354,6 +362,91 @@ export default defineComponent({
                 createDialog.visible = false
             })
         }
+        // 本体继承图部分
+        const createInheritanceGraph = data => {
+            const container = document.getElementById('InheritanceGraph')
+            const width = container.scrollWidth
+            const height = container.scrollHeight || 250
+            console.log(container.scrollHeight)
+            if (graph.value !== null) {
+                graph.value.clear()
+                graph.value.destroy()
+            }
+            graph.value = new G6.TreeGraph({
+                container: 'InheritanceGraph',
+                width,
+                height,
+                modes: {
+                    default: [
+                        {
+                            type: 'collapse-expand',
+                            onChange: function onChange(item, collapsed) {
+                                const data = item.getModel()
+                                data.collapsed = collapsed
+                                return true
+                            }
+                        },
+                        'drag-canvas',
+                        'zoom-canvas'
+                    ]
+                },
+                defaultNode: {
+                    size: 26,
+                    anchorPoints: [
+                        [0, 0.5],
+                        [1, 0.5]
+                    ]
+                },
+                defaultEdge: {
+                    type: 'cubic-horizontal'
+                },
+                layout: {
+                    type: 'compactBox',
+                    direction: 'LR',
+                    getId: function getId(d) {
+                        return d.id
+                    },
+                    getHeight: function getHeight() {
+                        return 16
+                    },
+                    getWidth: function getWidth() {
+                        return 16
+                    },
+                    getVGap: function getVGap() {
+                        return 10
+                    },
+                    getHGap: function getHGap() {
+                        return 100
+                    }
+                }
+            })
+
+            graph.value.node(function(node) {
+                return {
+                    label: node.label,
+                    labelCfg: {
+                        offset: 10,
+                        position: node.children && node.children.length > 0 ? 'left' : 'right'
+                    }
+                }
+            })
+            console.log(data)
+            graph.value.data(data)
+            graph.value.render()
+            graph.value.fitView()
+
+            if (typeof window !== 'undefined')
+                window.onresize = () => {
+                    if (!graph.value || graph.value.get('destroyed')) return
+                    if (!container || !container.scrollWidth || !container.scrollHeight) return
+                    graph.value.changeSize(container.scrollWidth, container.scrollHeight)
+                }
+        }
+        // fetch('https://gw.alipayobjects.com/os/antvdemo/assets/data/algorithm-category.json')
+        //     .then((res) => res.json())
+        //     .then((data) => {
+        //
+        //     });
 
         onMounted(() => {
             // 从本体存储中读取出projectId
@@ -377,6 +470,7 @@ export default defineComponent({
             })
         })
         return {
+            graph,
             project,
             labels,
             types,

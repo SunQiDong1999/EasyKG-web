@@ -12,3 +12,9 @@ export const updateOntology = ontologyForm => {
         ontologyForm
     )
 }
+
+export const getInheritanceDataById = id => {
+    return api.get(
+        'ontology/' + 'getInheritance/' + id
+    )
+}

@@ -50,6 +50,7 @@ function handleLogin() {
                 } else {
                     localStorage.removeItem('login_account')
                 }
+                console.log(redirect.value)
                 router.push(redirect.value)
             }).catch(() => {
                 loading.value = false

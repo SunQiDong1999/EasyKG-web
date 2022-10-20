@@ -121,7 +121,6 @@ let asyncRoutes = [
         ]
     }
 ]
-
 import projects from '@/router/modules/main/projects'
 import kgs from '@/router/modules/main/kgs'
 // 主页路由
