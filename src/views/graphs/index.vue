@@ -62,7 +62,7 @@
                                     </el-icon>
                                 </template>
                             </el-button>
-                            <el-button link>
+                            <el-button link @click="deleteGraph(project.id, scope.row.id)">
                                 <template #icon>
                                     <el-icon @click="scope">
                                         <svg-icon name="delete" />
@@ -117,7 +117,7 @@ import { defineComponent } from 'vue'
 import { onMounted, reactive } from 'vue'
 import { createGraph, getGraphs, getProjectById } from '@/api/project'
 import { ElMessage } from 'element-plus'
-import { uploadGraphData } from '@/api/graph'
+import { deleteGraphById, uploadGraphData } from '@/api/graph'
 import { useRouter } from 'vue-router/dist/vue-router'
 
 export default defineComponent({
@@ -176,6 +176,15 @@ export default defineComponent({
                     graphs.list = res.data
                 })
                 createDialog.visible = false
+            })
+        }
+
+        // 删除图谱
+        const deleteGraph = (projectId, id) => {
+            deleteGraphById(projectId, id).then(() => {
+                getGraphs(project.id).then(res => {
+                    graphs.list = res.data
+                })
             })
         }
 
@@ -267,6 +276,7 @@ export default defineComponent({
             createGraphClick,
             createDialogClose,
             createGraphSubmit,
+            deleteGraph,
             uploadDialog,
             uploadDialogOpen,
             uploadDialogClose,

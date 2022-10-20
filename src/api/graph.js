@@ -22,3 +22,9 @@ export const getGraphData = (id, page) => {
         }
     )
 }
+
+export const deleteGraphById = (projectId, id) => {
+    return api.get(
+        'project/' + projectId + '/graph/delete/' + id
+    )
+}
