@@ -57,3 +57,8 @@ export const createGraph = (id, createForm) => {
     )
 }
 
+export const deleteGraphById = (projectId, id) => {
+    return api.delete(
+        'project/' + projectId + '/graph/' + id
+    )
+}

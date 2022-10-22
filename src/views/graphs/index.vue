@@ -115,9 +115,9 @@
 
 import { defineComponent } from 'vue'
 import { onMounted, reactive } from 'vue'
-import { createGraph, getGraphs, getProjectById } from '@/api/project'
+import { createGraph, getGraphs, getProjectById, deleteGraphById } from '@/api/project'
 import { ElMessage } from 'element-plus'
-import { deleteGraphById, uploadGraphData } from '@/api/graph'
+import { uploadGraphData } from '@/api/graph'
 import { useRouter } from 'vue-router/dist/vue-router'
 
 export default defineComponent({
