@@ -36,7 +36,7 @@
                         <template #default="scope">
                             <el-button link @click="uploadDialogOpen(scope.row.id)">
                                 <template #icon>
-                                    <el-icon @click="scope">
+                                    <el-icon>
                                         <svg-icon name="upload" />
                                     </el-icon>
                                 </template>
