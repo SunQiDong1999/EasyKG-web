@@ -18,3 +18,10 @@ export const getPermissions = () => {
         'user/permission'
     )
 }
+
+export const editPassword = editForm => {
+    return api.post(
+        'user/editPassword',
+        editForm
+    )
+}

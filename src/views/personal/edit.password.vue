@@ -9,21 +9,29 @@
 <script setup name="PersonalEditPassword">
 import useUserStore from '@/store/modules/user'
 
+const loading = ref(false)
+const redirect = ref(null)
+
+onMounted(() => {
+    redirect.value = route.query.redirect ?? '/login'
+})
+
 const route = useRoute()
 const router = useRouter()
 
 const userStore = useUserStore()
 
 const validatePassword = (rule, value, callback) => {
-    if (value !== form.value.newpassword) {
-        callback(new Error('请确认新密码'))
+    if (value !== editForm.value.newpassword) {
+        callback(new Error('两次输入的密码不一致，请重新输入新密码'))
     } else {
         callback()
     }
 }
 
-const formRef = ref()
-const form = ref({
+const editFormRef = ref()
+const editForm = ref({
+    account: localStorage.account,
     password: '',
     newpassword: '',
     checkpassword: ''
@@ -44,22 +52,21 @@ const rules = ref({
 })
 
 function onSubmit() {
-    formRef.value.validate(valid => {
+    editFormRef.value.validate(valid => {
         if (valid) {
-            userStore.editPassword(form.value).then(() => {
+            loading.value = true
+            userStore.editPassword(editForm.value).then(() => {
+                loading.value = false
                 ElMessage({
                     type: 'success',
-                    message: '模拟修改成功，请重新登录'
+                    message: '密码修改成功，请重新登录'
                 })
                 userStore.logout().then(() => {
-                    router.push({
-                        name: 'login',
-                        query: {
-                            redirect: route.fullPath
-                        }
-                    })
+                    router.push(redirect.value)
                 })
-            }).catch(() => {})
+            }).catch(() => {
+                loading.value = false
+            })
         }
     })
 }
@@ -71,22 +78,22 @@ function onSubmit() {
         <page-main>
             <el-row>
                 <el-col :md="24" :lg="12">
-                    <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
+                    <el-form ref="editFormRef" :model="editForm" :rules="rules" label-width="120px">
                         <el-form-item label="原密码" prop="password">
-                            <el-input v-model="form.password" type="password" placeholder="请输入原密码" />
+                            <el-input v-model="editForm.password" type="password" placeholder="请输入原密码" />
                         </el-form-item>
                         <el-form-item label="新密码" prop="newpassword">
-                            <el-input v-model="form.newpassword" type="password" placeholder="请输入原密码" />
+                            <el-input v-model="editForm.newpassword" type="password" placeholder="请输入原密码" />
                         </el-form-item>
                         <el-form-item label="确认新密码" prop="checkpassword">
-                            <el-input v-model="form.checkpassword" type="password" placeholder="请输入原密码" />
+                            <el-input v-model="editForm.checkpassword" type="password" placeholder="请输入原密码" />
                         </el-form-item>
                     </el-form>
                 </el-col>
             </el-row>
         </page-main>
         <fixed-action-bar>
-            <el-button type="primary" size="large" @click="onSubmit">提交</el-button>
+            <el-button type="primary" size="large" :loading="loading" @click="onSubmit">提交</el-button>
         </fixed-action-bar>
     </div>
 </template>

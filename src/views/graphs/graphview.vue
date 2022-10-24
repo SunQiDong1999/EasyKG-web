@@ -13,7 +13,8 @@
                             v-model:page-size="pagination.size"
                             v-model:current-page="pagination.page"
                             layout="prev, pager, next"
-                            :total="graph.entityNum"
+                            :total="pagination.total"
+                            @current-change="pageChange"
                         />
                         <button @click="aside.one=!aside.one">开抽屉</button>
                     </el-space>
@@ -53,9 +54,21 @@ export default defineComponent({
             visible: false
         })
         const pagination = reactive({
-            size: 1,
+            size: 25,
             page: 1
         })
+        const g6Data = reactive({
+            nodes: [],
+            edges: []
+        })
+
+        const pageChange = () => {
+            getGraphData(graphId, pagination.page).then(res => {
+                g6Data.nodes = res.data.nodes
+                g6Graph.render() // 读取 Step 2 中的数据源到图上
+            })
+        }
+
         // 图配置
         const g6Config = {
             container: 'mountNode', // String | HTMLElement，必须，在 Step 1 中创建的容器 id 或容器本身
@@ -66,10 +79,19 @@ export default defineComponent({
                 default: ['drag-canvas', 'zoom-canvas', 'drag-node'] // 允许拖拽画布、放缩画布、拖拽节点
             },
             layout: {
-                // Object，可选，布局的方法及其配置项，默认为 random 布局。
-                type: 'force', // 指定为力导向布局
-                preventOverlap: true, // 防止节点重叠
-                linkDistance: 100 // 指定边距离为100
+                type: 'force',
+                linkDistance: 100, // 边长度
+                nodeStrength: 30, // 节点作用力，正数代表节点之间的引力作用，负数代表节点之间的斥力作用
+                edgeStrength: 0.2, // 边的作用力，范围是 0 到 1，默认根据节点的出入度自适应
+                collideStrength: 0.1, // 防止重叠的力强度
+                nodeSize: 80, // 节点大小
+                nodeSpacing: 30, // 间距
+                alpha: 0.8, // 当前的迭代收敛阈值
+                alphaDecay: 0.028, // 迭代阈值的衰减率。范围 [0, 1]。0.028 对应迭代数为 300
+                alphaMin: 0.01, // 停止迭代的阈值
+                forceSimulation: null, // 自定义 force 方法，若不指定，则使用 d3.js 的方法
+                preventOverlap: true, // 是否防止重叠
+                condense: true
             },
             // 节点在默认状态下的样式配置（style）和其他配置
             defaultNode: {
@@ -85,7 +107,7 @@ export default defineComponent({
                 labelCfg: {
                     // 节点上的标签文本样式配置
                     style: {
-                        fill: '#fff' // 节点标签文字颜色
+                        fill: 'black' // 节点标签文字颜色
                     }
                 }
             },
@@ -95,7 +117,11 @@ export default defineComponent({
                 // 边样式配置
                 style: {
                     opacity: 0.6, // 边透明度
-                    stroke: 'grey' // 边描边颜色
+                    stroke: 'grey', // 边描边颜色
+                    endArrow: {
+                        path: G6.Arrow.vee(2, 5, 10), // 内置箭头，参数为箭头宽度、长度、偏移量 d（默认为 0）
+                        d: 10 // 偏移量
+                    }
                 },
                 // 边上的标签文本配置
                 labelCfg: {
@@ -122,9 +148,11 @@ export default defineComponent({
                 }
             }
         }
+        let g6Graph = undefined
 
         onMounted(() => {
-            const g6Graph = new G6.Graph(g6Config)
+            g6Graph = new G6.Graph(g6Config)
+
             getGraphById(graphId).then(res => {
                 graph.id = res.data.id
                 graph.name = res.data.name
@@ -132,11 +160,12 @@ export default defineComponent({
                 graph.entityNum = res.data.entityNum
                 graph.relationNum = res.data.relationNum
                 getGraphData(graphId, pagination.page).then(res => {
-                    const g6Data = res.data
+                    g6Data.nodes = res.data.nodes
+                    g6Data.edges = res.data.edges
                     console.log(g6Data)
-                    g6Graph.data(g6Data) // 读取 Step 2 中的数据源到图上
-                    g6Graph.render() // 渲染图
+                    g6Graph.read(g6Data) // 读取 Step 2 中的数据源到图上
                 })
+                pagination.total = graph.entityNum
             })
             // 鼠标进入节点
             g6Graph.on('node:mouseenter', e => {
@@ -175,7 +204,8 @@ export default defineComponent({
         return {
             graph,
             aside,
-            pagination
+            pagination,
+            pageChange
         }
     }
 })
