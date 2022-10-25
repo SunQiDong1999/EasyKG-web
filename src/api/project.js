@@ -19,6 +19,12 @@ export const getProjectById = id => {
     )
 }
 
+export const deleteProjectById = id => {
+    return api.delete(
+        'project/' + id
+    )
+}
+
 export const getLabels = id => {
     return api.get(
         'project/' + id + '/labels'
