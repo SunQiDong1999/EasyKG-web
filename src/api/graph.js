@@ -31,7 +31,7 @@ export const getLabelTableHeads = id => {
 
 export const getLabelTableData = (id, label, size, page) => {
     return api.get(
-        'graph/' + id + '/tableview/entities',{
+        'graph/' + id + '/tableview/entities', {
             params: {
                 label: label,
                 size: size,
@@ -49,7 +49,7 @@ export const getTypeTableHeads = id => {
 
 export const getTypeTableData = (id, type, size, page) => {
     return api.get(
-        'graph/' + id + '/tableview/relations',{
+        'graph/' + id + '/tableview/relations', {
             params: {
                 type: type,
                 size: size,
