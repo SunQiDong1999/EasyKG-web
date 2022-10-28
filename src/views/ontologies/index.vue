@@ -385,9 +385,7 @@ export default defineComponent({
                                 data.collapsed = collapsed
                                 return true
                             }
-                        },
-                        'drag-canvas',
-                        'zoom-canvas'
+                        }
                     ]
                 },
                 defaultNode: {
@@ -442,11 +440,6 @@ export default defineComponent({
                     graph.value.changeSize(container.scrollWidth, container.scrollHeight)
                 }
         }
-        // fetch('https://gw.alipayobjects.com/os/antvdemo/assets/data/algorithm-category.json')
-        //     .then((res) => res.json())
-        //     .then((data) => {
-        //
-        //     });
 
         onMounted(() => {
             // 从本体存储中读取出projectId
