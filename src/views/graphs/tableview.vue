@@ -51,15 +51,6 @@
                             </template>
                         </el-table-column>
                     </el-table>
-                    <el-space>
-                        <el-pagination
-                            v-model:page-size="dataList.pagination.size"
-                            v-model:current-page="dataList.pagination.page"
-                            layout="prev, pager, next"
-                            :total="dataList.pagination.total"
-                            @current-change="pageChange"
-                        />
-                    </el-space>
                 </el-tab-pane>
                 <el-tab-pane label="关系列表" name="relation">
                     <el-space>
@@ -102,18 +93,29 @@
                             </template>
                         </el-table-column>
                     </el-table>
-                    <el-space>
-                        <el-pagination
-                            v-model:page-size="dataList.relationPagination.size"
-                            v-model:current-page="dataList.relationPagination.page"
-                            layout="prev, pager, next"
-                            :total="dataList.relationPagination.total"
-                            @current-change="pageChange"
-                        />
-                    </el-space>
                 </el-tab-pane>
             </el-tabs>
         </page-main>
+        <fixed-action-bar>
+            <el-space>
+                <el-pagination
+                    v-if="activeName==='entity'"
+                    v-model:page-size="dataList.pagination.size"
+                    v-model:current-page="dataList.pagination.page"
+                    layout="prev, pager, next"
+                    :total="dataList.pagination.total"
+                    @current-change="pageChange"
+                />
+                <el-pagination
+                    v-if="activeName==='relation'"
+                    v-model:page-size="dataList.relationPagination.size"
+                    v-model:current-page="dataList.relationPagination.page"
+                    layout="prev, pager, next"
+                    :total="dataList.relationPagination.total"
+                    @current-change="pageChange"
+                />
+            </el-space>
+        </fixed-action-bar>
     </div>
 </template>
 
