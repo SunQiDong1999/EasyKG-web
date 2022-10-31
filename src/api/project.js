@@ -68,3 +68,9 @@ export const deleteGraphById = (projectId, id) => {
         'project/' + projectId + '/graph/' + id
     )
 }
+
+export const getOntologyColorMap = id => {
+    return api.get(
+        'project/' + id + '/ontology-color-map'
+    )
+}

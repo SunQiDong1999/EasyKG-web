@@ -122,7 +122,7 @@
 <script>
 import { defineComponent, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router/dist/vue-router'
-import { getGraphById, getLabelTableHeads, getLabelTableData, getTypeTableHeads, getTypeTableData } from '@/api/graph'
+import { getGraphById, getLabelAttributeMap, getLabelTableData, getTypeAttributeMap, getTypeTableData } from '@/api/graph'
 import { getLabels, getTypes } from '@/api/project'
 
 export default defineComponent({
@@ -183,7 +183,7 @@ export default defineComponent({
         }
         const elSelectHandle = name => {
             console.log(name)
-            getLabelTableHeads(graphId).then(res => {
+            getLabelAttributeMap(graphId).then(res => {
                 const map = res.data
                 tableHeadNames.list = map[name]
                 console.log(tableHeadNames.list)
@@ -215,13 +215,12 @@ export default defineComponent({
 
         const elSelectTypeHandle = name => {
             console.log(name)
-            getTypeTableHeads(graphId).then(res => {
+            getTypeAttributeMap(graphId).then(res => {
                 const map = res.data
                 tableHeadNames.relationHeadList = map[name]
                 console.log(tableHeadNames.relationHeadList)
             })
             getTypeTableData(graphId, typeValue.name, dataList.relationPagination.size, 1).then(res => {
-
                 dataList.relationPagination.total = res.data.total
                 dataList.relationList = [...res.data.data]
                 console.log(res.data)

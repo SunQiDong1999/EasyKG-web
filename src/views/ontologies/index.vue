@@ -95,6 +95,9 @@
                                         <el-form-item label="描述">
                                             <el-input v-model="ontologyForm.description" style="width: 50%;" />
                                         </el-form-item>
+                                        <el-form-item label="颜色">
+                                            <el-color-picker v-model="ontologyForm.color" size="large" color-format="hex" />
+                                        </el-form-item>
                                         <el-table
                                             :data="ontologyForm.attributes"
                                             highlight-current-row
@@ -235,7 +238,8 @@ export default defineComponent({
             createdTime: '',
             attributes: [],
             // 删除的属性列表
-            deleteList: []
+            deleteList: [],
+            color: '#4682b4'
         })
 
         // 选中本体，对本体信息进行展示
@@ -250,6 +254,8 @@ export default defineComponent({
                 ontologyForm.description = res.data.description
                 ontologyForm.createdTime = res.data.createdTime
                 ontologyForm.attributes = res.data.attributes
+                ontologyForm.color = res.data.color
+                console.log(ontologyForm)
             })
             getInheritanceDataById(index).then(res => {
                 console.log(res)

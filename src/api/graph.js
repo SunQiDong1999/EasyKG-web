@@ -23,7 +23,7 @@ export const getGraphData = (id, page) => {
     )
 }
 
-export const getLabelTableHeads = id => {
+export const getLabelAttributeMap = id => {
     return api.get(
         'graph/' + id + '/label-attribute-map'
     )
@@ -41,7 +41,7 @@ export const getLabelTableData = (id, label, size, page) => {
     )
 }
 
-export const getTypeTableHeads = id => {
+export const getTypeAttributeMap = id => {
     return api.get(
         'graph/' + id + '/type-attribute-map'
     )
@@ -52,6 +52,41 @@ export const getTypeTableData = (id, type, size, page) => {
         'graph/' + id + '/tableview/relations', {
             params: {
                 type: type,
+                size: size,
+                page: page
+            }
+        }
+    )
+}
+
+export const getEntities = (id, size, page) => {
+    return api.get(
+        'graph/' + id + '/entities', {
+            params: {
+                size: size,
+                page: page
+            }
+        }
+    )
+}
+
+export const getEntitiesQuery = (id, label, size, page, query) => {
+    return api.get(
+        'graph/' + id + '/entities-query', {
+            params: {
+                label: label,
+                size: size,
+                page: page,
+                query: query
+            }
+        }
+    )
+}
+
+export const getRelations = (id, size, page) => {
+    return api.get(
+        'graph/' + id + '/relations', {
+            params: {
                 size: size,
                 page: page
             }
