@@ -24,8 +24,10 @@
                                     <br>
                                     <span style="font-size: 10px; color: #6d737b;">{{ project.description }}</span>
                                 </div>
-                                <el-button class="button" text @click="toOverview(project.id)">进入</el-button>
-                                <el-button class="button" text @click="deleteProject(project.id)">删除</el-button>
+                                <el-space>
+                                    <el-button class="button" text @click="toOverview(project.id)">进入</el-button>
+                                    <el-button class="button" text @click="deleteProject(project.id)">删除</el-button>
+                                </el-space>
                             </div>
                         </template>
                         <el-descriptions :column="1" border>
@@ -78,8 +80,10 @@
                 </el-col>
             </el-row>
         </page-main>
-        <el-dialog v-model="createDialog.visible" title="新建项目" :draggable="createDialog.draggable"
-            :center="createDialog.center">
+        <el-dialog
+            v-model="createDialog.visible" title="新建项目" :draggable="createDialog.draggable"
+            :center="createDialog.center"
+        >
             <el-form v-model="createForm">
                 <el-form-item label="项目名称">
                     <el-input v-model="createForm.name" />
