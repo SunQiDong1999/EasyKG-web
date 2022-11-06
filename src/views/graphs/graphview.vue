@@ -31,7 +31,7 @@
                                 </el-button>
                             </template>
                             <template #default>
-                                <div style="text-align: center">
+                                <div style="text-align: center;">
                                     <el-button text @click="aside.cur='实体查询'">
                                         实体查询
                                     </el-button><br>
@@ -46,7 +46,7 @@
                 <el-divider />
                 <el-container>
                     <el-main>
-                        <el-card id="container" shadow="never" style="min-height: 500px">
+                        <el-card id="container" shadow="never" style="min-height: 500px;">
                             <div id="mountNode" />
                         </el-card>
                     </el-main>
@@ -500,6 +500,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style scoped>
-</style>
