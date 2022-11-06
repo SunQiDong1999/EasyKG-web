@@ -93,3 +93,9 @@ export const getRelations = (id, size, page) => {
         }
     )
 }
+
+export const getEntityNeighbors = (id, entityId) => {
+    return api.get(
+        'graph/' + id + '/entities/' + entityId + '/neighbors'
+    )
+}

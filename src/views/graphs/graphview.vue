@@ -149,7 +149,7 @@
 import { defineComponent, onMounted, reactive, ref } from 'vue'
 import {
     getEntities,
-    getEntitiesQuery,
+    getEntitiesQuery, getEntityNeighbors,
     getGraphById,
     getLabelAttributeMap,
     getRelations,
@@ -160,7 +160,7 @@ import { getLabels, getOntologyColorMap, getTypes } from '@/api/project'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { ElDivider } from 'element-plus'
-import { fittingString } from '@/views/graphs/graph_method'
+import { fittingString, uniqueFunc } from '@/views/graphs/graph_method'
 
 export default defineComponent({
     name: 'Tableview',
@@ -243,9 +243,8 @@ export default defineComponent({
                 // ...                 // 节点的其他配置
                 // 节点样式配置
                 style: {
-                    fill: 'steelblue', // 节点填充色
-                    stroke: '#666', // 节点描边色
-                    lineWidth: 1 // 节点描边粗细
+                    stroke: 'black', // 节点描边色
+                    lineWidth: 0.5 // 节点描边粗细
                 },
                 // 节点上的标签文本配置
                 labelCfg: {
@@ -260,7 +259,6 @@ export default defineComponent({
                 // 边样式配置
                 style: {
                     opacity: 0.6, // 边透明度
-                    stroke: 'grey', // 边描边颜色
                     endArrow: {
                         path: G6.Arrow.vee(2, 5, 10), // 内置箭头，参数为箭头宽度、长度、偏移量 d（默认为 0）
                         d: 10 // 偏移量
@@ -275,11 +273,10 @@ export default defineComponent({
             nodeStateStyles: {
                 // 鼠标 hover 上节点，即 hover 状态为 true 时的样式
                 hover: {
-                    fill: 'lightsteelblue'
+                    lineWidth: 2
                 },
                 // 鼠标点击节点，即 click 状态为 true 时的样式
                 click: {
-                    stroke: '#000',
                     lineWidth: 3
                 }
             },
@@ -287,7 +284,8 @@ export default defineComponent({
             edgeStateStyles: {
                 // 鼠标点击边，即 click 状态为 true 时的样式
                 click: {
-                    stroke: 'steelblue'
+                    stroke: 'black',
+                    lineWidth: 3
                 }
             }
         }
@@ -300,6 +298,7 @@ export default defineComponent({
                 node.label = fittingString(node.label, 50, 12)
             })
             g6Data.edges.forEach(edge => {
+                delete edge.id
                 edge.style = {
                     stroke: graph.colorMap[edge.type]
                 }
@@ -469,6 +468,18 @@ export default defineComponent({
                 relationInfo.type = relationInfo.info.type
                 relationInfo.infoList = []
                 relationInfo.infoList = [...graph.typeAttributeMap[relationInfo.type]].slice(1)
+            })
+
+            // 双击节点
+            g6Graph.value.on('node:dblclick', e => {
+                const nodeItem = e.item // 获取被点击的节点元素对象
+                // 实体信息
+                entityInfo.info = nodeItem._cfg.model
+                getEntityNeighbors(graphId, entityInfo.info.id).then(res => {
+                    g6Data.nodes = uniqueFunc(g6Data.nodes.concat(res.data), 'id')
+                    setG6Data(g6Data)
+                    g6Graph.value.render() // 读取 Step 2 中的数据源到图上
+                })
             })
         })
         return {
