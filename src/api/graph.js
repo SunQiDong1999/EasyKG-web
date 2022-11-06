@@ -93,3 +93,16 @@ export const getRelations = (id, size, page) => {
         }
     )
 }
+
+export const getRelationsQuery = (id, label, size, page, query) => {
+    return api.get(
+        'graph/' + id + '/relations-query', {
+            params: {
+                label: label,
+                size: size,
+                page: page,
+                query: query
+            }
+        }
+    )
+}
