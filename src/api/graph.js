@@ -107,19 +107,6 @@ export const getRelations = (id, size, page) => {
     )
 }
 
-export const getRelationsQuery = (id, type, size, page, query) => {
-    return api.get(
-        'graph/' + id + '/relations-query', {
-            params: {
-                type: type,
-                size: size,
-                page: page,
-                query: query
-            }
-        }
-    )
-}
-
 export const getRelationsQueryEntities = (id, type, size, page, query, sourceLabel, targetLabel) => {
     return api.get(
         'graph/' + id + '/relations-query/entities', {
