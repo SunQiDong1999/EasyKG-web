@@ -52,7 +52,51 @@
                     </el-main>
                     <el-divider direction="vertical" />
                     <el-aside v-if="aside.cur === 'overview'">
-                        <el-card header="概览" shadow="never" />
+                        <el-card header="概览" shadow="never">
+                            <el-descriptions :column="1" border>
+                                <el-descriptions-item align="center">
+                                    <template #label>
+                                        <span>实体数</span>
+                                    </template>
+                                    <span style="font-size: 30px;">
+                                        {{ graph.entityNum }}
+                                    </span>
+                                    <span>
+                                        个
+                                    </span>
+                                </el-descriptions-item>
+                                <el-descriptions-item align="center">
+                                    <template #label>
+                                        <span>关系数</span>
+                                    </template>
+                                    <span style="font-size: 30px;">
+                                        {{ graph.relationNum }}
+                                    </span>
+                                    <span>
+                                        个
+                                    </span>
+                                </el-descriptions-item>
+                                <el-descriptions-item align="center">
+                                    <template #label>
+                                        <span>子图数</span>
+                                    </template>
+                                    <span style="font-size: 30px;">
+                                        {{ graph.subgraphNum }}
+                                    </span>
+                                    <span>
+                                        个
+                                    </span>
+                                </el-descriptions-item>
+                                <el-descriptions-item align="center">
+                                    <template #label>
+                                        <span>模型描述</span>
+                                    </template>
+                                    <span style="font-size: 30px;">
+                                        {{ graph.description }}
+                                    </span>
+                                </el-descriptions-item>
+                            </el-descriptions>
+                        </el-card>
                     </el-aside>
                     <el-aside v-else-if="aside.cur === '实体信息'">
                         <el-card header="实体信息" shadow="never">
@@ -104,7 +148,7 @@
                             实体标签：<el-select
                                 v-model="entityQueryForm.label"
                                 style="width: 50%;"
-                                @change="entityQueryLabelChange()"
+                                @change="entityQueryLabelChange(entityQueryForm)"
                             >
                                 <el-option v-for="label in labels.list" :key="label.name" :label="label.name" :value="label.name" />
                             </el-select>
@@ -130,13 +174,84 @@
                     </el-aside>
                     <el-aside v-else-if="aside.cur === '关系查询'">
                         <el-card header="关系查询">
-                            <el-select
+                            关系类型：<el-select
                                 v-model="relationQueryForm.type"
                                 style="width: 50%;"
-                                @change="relationQueryForm.attributes=graph.typeAttributeMap[relationQueryForm.label]"
+                                @change="relationQueryTypeChange"
                             >
                                 <el-option v-for="type in types.list" :key="type.name" :label="type.name" :value="type.name" />
                             </el-select>
+                            <el-divider />
+                            <el-descriptions border column="1">
+                                <el-descriptions-item
+                                    v-for="(attribute, index) in relationQueryForm.attributes"
+                                    :key="attribute.name"
+                                    :label="attribute.nameZh + '（' + attribute.name + '）'"
+                                    align="center"
+                                >
+                                    <el-select v-model="relationQueryForm.operators[index]">
+                                        <el-option v-for="condition in relationQueryForm.conditions[index]" :key="condition" :value="condition" />
+                                    </el-select>
+                                    <el-input v-model="relationQueryForm.values[index]" />
+                                </el-descriptions-item>
+                            </el-descriptions>
+                            <el-divider />
+                            <el-collapse accordion>
+                                <el-collapse-item title="源实体" name="source">
+                                    <el-card>
+                                        源实体标签：<el-select
+                                            v-model="query.relation.source.label"
+                                            style="width: 50%;"
+                                            @change="entityQueryLabelChange(query.relation.source)"
+                                        >
+                                            <el-option v-for="label in labels.list" :key="label.name" :label="label.name" :value="label.name" />
+                                        </el-select>
+                                        <el-divider />
+                                        <el-descriptions border column="1">
+                                            <el-descriptions-item
+                                                v-for="(attribute, index) in query.relation.source.attributes"
+                                                :key="attribute.name"
+                                                :label="attribute.nameZh + '（' + attribute.name + '）'"
+                                                align="center"
+                                            >
+                                                <el-select v-model="query.relation.source.operators[index]">
+                                                    <el-option v-for="condition in query.relation.source.conditions[index]" :key="condition" :value="condition" />
+                                                </el-select>
+                                                <el-input v-model="query.relation.source.values[index]" />
+                                            </el-descriptions-item>
+                                        </el-descriptions>
+                                    </el-card>
+                                </el-collapse-item>
+                                <el-collapse-item title="目标实体" name="target">
+                                    <el-card>
+                                        源实体标签：<el-select
+                                            v-model="query.relation.target.label"
+                                            style="width: 50%;"
+                                            @change="entityQueryLabelChange(query.relation.target)"
+                                        >
+                                            <el-option v-for="label in labels.list" :key="label.name" :label="label.name" :value="label.name" />
+                                        </el-select>
+                                        <el-divider />
+                                        <el-descriptions border column="1">
+                                            <el-descriptions-item
+                                                v-for="(attribute, index) in query.relation.target.attributes"
+                                                :key="attribute.name"
+                                                :label="attribute.nameZh + '（' + attribute.name + '）'"
+                                                align="center"
+                                            >
+                                                <el-select v-model="query.relation.target.operators[index]">
+                                                    <el-option v-for="condition in query.relation.target.conditions[index]" :key="condition" :value="condition" />
+                                                </el-select>
+                                                <el-input v-model="query.relation.target.values[index]" />
+                                            </el-descriptions-item>
+                                        </el-descriptions>
+                                    </el-card>
+                                </el-collapse-item>
+                            </el-collapse>
+                            <el-divider />
+                            <el-button @click="relationQuery()">
+                                查询
+                            </el-button>
                         </el-card>
                     </el-aside>
                 </el-container>
@@ -152,7 +267,7 @@ import {
     getEntitiesQuery, getEntityNeighbors,
     getGraphById,
     getLabelAttributeMap,
-    getRelations,
+    getRelations, getRelationsQueryEntities,
     getTypeAttributeMap
 } from '@/api/graph'
 import G6 from '@antv/g6'
@@ -198,15 +313,22 @@ export default defineComponent({
         })
 
         const pageChange = () => {
-            if (query.entity.length === 0) {
+            if (query.entity.length === 0 && query.relation.r.length === 0) {
                 getEntities(graphId, pagination.size, pagination.page).then(res => {
                     pagination.total = res.data.total
                     g6Data.nodes = res.data.data
                     setG6Data(g6Data)
                     g6Graph.value.render() // 读取 Step 2 中的数据源到图上
                 })
-            } else if (query.entity.length !== 0) {
+            } else if (query.entity.length !== 0 && query.relation.r.length === 0) {
                 getEntitiesQuery(graphId, entityQueryForm.label, pagination.size, pagination.page, query.entity).then(res => {
+                    pagination.total = res.data.total
+                    g6Data.nodes = res.data.data
+                    setG6Data(g6Data)
+                    g6Graph.value.render() // 读取 Step 2 中的数据源到图上
+                })
+            } else if (query.entity.length === 0 && query.relation.r.length !== 0) {
+                getRelationsQueryEntities(graphId, relationQueryForm.type, pagination.size, pagination.page, query.relation.r, query.relation.source.label, query.relation.target.label).then(res => {
                     pagination.total = res.data.total
                     g6Data.nodes = res.data.data
                     setG6Data(g6Data)
@@ -334,10 +456,26 @@ export default defineComponent({
 
         const query = reactive({
             entity: '',
-            relation: ''
+            relation: {
+                r: '',
+                source: {
+                    label: '',
+                    attributes: [],
+                    conditions: [],
+                    operators: [],
+                    values: []
+                },
+                target: {
+                    label: '',
+                    attributes: [],
+                    conditions: [],
+                    operators: [],
+                    values: []
+                }
+            }
         })
 
-        const entityQueryLabelChange = () => {
+        const entityQueryLabelChange = entityQueryForm => {
             entityQueryForm.attributes = graph.labelAttributeMap[entityQueryForm.label]
             entityQueryForm.operators = []
             entityQueryForm.values = []
@@ -356,9 +494,28 @@ export default defineComponent({
             })
         }
 
+        const relationQueryTypeChange = () => {
+            relationQueryForm.attributes = graph.typeAttributeMap[relationQueryForm.type]
+            relationQueryForm.operators = []
+            relationQueryForm.values = []
+            relationQueryForm.attributes.forEach((attribute, index) => {
+                if (attribute.type === 0) {
+                    relationQueryForm.conditions[index] = ['=', '=~']
+                } else if (attribute.type === 1 ||  attribute.type === 2) {
+                    relationQueryForm.conditions[index] = ['>', '>=', '=', '<=', '<']
+                } else if (attribute.type === 3) {
+                    relationQueryForm.conditions[index] = ['=']
+                } else if (attribute.type === 4) {
+                    relationQueryForm.conditions[index] = ['>', '>=', '=', '<=', '<']
+                } else if (attribute.type === 5) {
+                    relationQueryForm.conditions[index] = ['contains']
+                }
+            })
+        }
+
         const entityQuery = () => {
             query.entity = ''
-            query.relation = ''
+            query.relation.r = ''
             let queryList = []
             entityQueryForm.attributes.forEach((attribute, index) => {
                 if (entityQueryForm.operators[index] !== undefined && entityQueryForm.values[index] !== undefined && entityQueryForm.values[index] !== '') {
@@ -382,6 +539,65 @@ export default defineComponent({
             pageChange()
         }
 
+        const relationQuery = () => {
+            console.log(query)
+            query.entity = ''
+            query.relation.r = ''
+            let queryList = []
+            relationQueryForm.attributes.forEach((attribute, index) => {
+                if (relationQueryForm.operators[index] !== undefined && relationQueryForm.values[index] !== undefined && relationQueryForm.values[index] !== '') {
+                    if (attribute.type === 0) {
+                        if (relationQueryForm.operators[index] === '=~') {
+                            queryList.push('r.' + attribute.name + ' ' + relationQueryForm.operators[index] + ' \'.*' + relationQueryForm.values[index] + '.*\'')
+
+                        } else if (entityQueryForm.operators[index] === '=') {
+                            queryList.push('r.' + attribute.name + ' ' + relationQueryForm.operators[index] + ' \'' + relationQueryForm.values[index] + '\'')
+                        }
+                    } else if (attribute.type === 1 ||  attribute.type === 2) {
+                        queryList.push('r.' + attribute.name + ' ' + relationQueryForm.operators[index] + ' ' + relationQueryForm.values[index])
+                    }
+                }
+            })
+            
+            query.relation.source.attributes.forEach((attribute, index) => {
+                if (query.relation.source.operators[index] !== undefined && query.relation.source.values[index] !== undefined && query.relation.source.values[index] !== '') {
+                    if (attribute.type === 0) {
+                        if (query.relation.source.operators[index] === '=~') {
+                            queryList.push('s.' + attribute.name + ' ' + query.relation.source.operators[index] + ' \'.*' + query.relation.source.values[index] + '.*\'')
+
+                        } else if (entityQueryForm.operators[index] === '=') {
+                            queryList.push('s.' + attribute.name + ' ' + query.relation.source.operators[index] + ' \'' + query.relation.source.values[index] + '\'')
+                        }
+                    } else if (attribute.type === 1 ||  attribute.type === 2) {
+                        queryList.push('s.' + attribute.name + ' ' + query.relation.source.operators[index] + ' ' + query.relation.source.values[index])
+                    }
+                }
+            })
+
+            query.relation.target.attributes.forEach((attribute, index) => {
+                if (query.relation.target.operators[index] !== undefined && query.relation.target.values[index] !== undefined && query.relation.target.values[index] !== '') {
+                    if (attribute.type === 0) {
+                        if (query.relation.target.operators[index] === '=~') {
+                            queryList.push('t.' + attribute.name + ' ' + query.relation.target.operators[index] + ' \'.*' + query.relation.target.values[index] + '.*\'')
+
+                        } else if (entityQueryForm.operators[index] === '=') {
+                            queryList.push('t.' + attribute.name + ' ' + query.relation.target.operators[index] + ' \'' + query.relation.target.values[index] + '\'')
+                        }
+                    } else if (attribute.type === 1 ||  attribute.type === 2) {
+                        queryList.push('t.' + attribute.name + ' ' + query.relation.target.operators[index] + ' ' + query.relation.target.values[index])
+                    }
+                }
+            })
+
+            query.relation.r = queryList[0]
+            for (let i = 1; i < queryList.length; i++) {
+                query.relation.r += ' and ' + queryList[i]
+            }
+            
+            pagination.page = 1
+            pageChange()
+        }
+
         onMounted(() => {
             g6Config.width = document.getElementById('container').offsetWidth
             g6Config.height = document.getElementById('container').offsetHeight
@@ -393,6 +609,7 @@ export default defineComponent({
                 graph.description = res.data.description
                 graph.entityNum = res.data.entityNum
                 graph.relationNum = res.data.relationNum
+                graph.subgraphNum = res.data.subgraphNum
                 graph.projectId = res.data.projectId
                 axios.all([
                     getEntities(graphId, pagination.size, pagination.page).then(res => {
@@ -495,7 +712,10 @@ export default defineComponent({
             entityQueryForm,
             relationQueryForm,
             entityQueryLabelChange,
-            entityQuery
+            entityQuery,
+            relationQueryTypeChange,
+            relationQuery,
+            query
         }
     }
 })
