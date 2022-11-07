@@ -348,17 +348,17 @@ export default defineComponent({
                 if (relationQueryForm.operators[index] !== undefined && relationQueryForm.values[index] !== undefined && relationQueryForm.values[index] !== '') {
                     if (attribute.type === 1 ||  attribute.type === 2) {
                         if (attribute.name === 'sourceId') {
-                            queryList.push('s.' + attribute.name + ' ' + relationQueryForm.operators[index] + ' ' + relationQueryForm.values[index])
+                            queryList.push('s.id' + ' ' + relationQueryForm.operators[index] + ' ' + relationQueryForm.values[index])
                         } else if (attribute.name === 'targetId') {
-                            queryList.push('t.' + attribute.name + ' ' + relationQueryForm.operators[index] + ' ' + relationQueryForm.values[index])
+                            queryList.push('t.id' + ' ' + relationQueryForm.operators[index] + ' ' + relationQueryForm.values[index])
                         }
 
                     }
                 }
             })
-            query.entity = queryList[0]
+            query.relation = queryList[0]
             for (let i = 1; i < queryList.length; i++) {
-                query.entity += ' and ' + queryList[i]
+                query.relation += ' and ' + queryList[i]
             }
             dataList.pagination.page = 1
             pageChange()
@@ -426,19 +426,22 @@ export default defineComponent({
                     })
                 }
 
-            } else {
+            } else if (activeName.value === 'relation') {
                 if (query.relation.length === 0) {
                     getTypeTableData(graphId, typeValue.name, dataList.relationPagination.size, dataList.relationPagination.page).then(res => {
-
+                        dataList.relationPagination.size = res.data.size
                         dataList.relationPagination.total = res.data.total
                         dataList.relationList = [...res.data.data]
                         console.log(res.data)
                     })
                 } else if (query.relation.length !== 0) {
-                    getRelationsQuery(graphId, entityQueryForm.label, dataList.pagination.size, dataList.pagination.page, query.entity).then(res => {
+                    getRelationsQuery(graphId, relationQueryForm.type, dataList.relationPagination.size, dataList.relationPagination.page, query.relation).then(res => {
                         dataList.relationPagination.total = res.data.total
+                        dataList.relationPagination.size = res.data.size
                         dataList.relationList = [...res.data.data]
+                        console.log('************')
                         console.log(res.data)
+                        console.log('****************')
                         Array.from(new Set(dataList.relationList))
                     })
                 }
@@ -448,6 +451,8 @@ export default defineComponent({
 
         const elSelectTypeHandle = name => {
             console.log(name)
+            query.entity = ''
+            query.relation = ''
             getTypeAttributeMap(graphId).then(res => {
                 const map = res.data
                 tableHeadNames.relationHeadList = map[name]
