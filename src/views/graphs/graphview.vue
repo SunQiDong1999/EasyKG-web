@@ -97,6 +97,8 @@
                                 </el-descriptions-item>
                             </el-descriptions>
                         </el-card>
+                        <el-divider />
+                        <el-card id="minimap" header="缩略图" shadow="never" style="min-height: 100px" />
                     </el-aside>
                     <el-aside v-else-if="aside.cur === '实体信息'">
                         <el-card header="实体信息" shadow="never">
@@ -674,6 +676,14 @@ export default defineComponent({
         onMounted(() => {
             g6Config.width = document.getElementById('container').offsetWidth
             g6Config.height = document.getElementById('container').offsetHeight
+            // 实例化 minimap 插件
+            const minimap = new G6.Minimap({
+                size: [document.getElementById('minimap').offsetWidth, document.getElementById('minimap').offsetHeight],
+                container: 'minimap',
+                type: 'default'
+            })
+            g6Config.plugins = [minimap]
+
             g6Graph.value = new G6.Graph(g6Config)
             getSubgraphs(graphId).then(res => {
                 subGraphs.list = res.data
