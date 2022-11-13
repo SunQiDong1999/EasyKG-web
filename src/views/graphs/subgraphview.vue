@@ -7,42 +7,7 @@
         </page-header>
         <page-main>
             <el-container>
-                <el-header height="20px">
-                    <el-space :spacer="spacer">
-                        <el-pagination
-                            v-model:page-size="pagination.size"
-                            v-model:current-page="pagination.page"
-                            layout="prev, pager, next"
-                            :total="pagination.total"
-                            @current-change="pageChange"
-                        />
-                        <el-popover
-                            placement="bottom-start"
-                            trigger="hover"
-                            :show-arrow="false"
-                        >
-                            <template #reference>
-                                <el-button link>
-                                    <template #icon>
-                                        <el-icon>
-                                            <svg-icon name="ep:search" />
-                                        </el-icon>
-                                    </template>
-                                </el-button>
-                            </template>
-                            <template #default>
-                                <div style="text-align: center;">
-                                    <el-button text @click="aside.cur='实体查询'">
-                                        实体查询
-                                    </el-button><br>
-                                    <el-button text @click="aside.cur='关系查询'">
-                                        关系查询
-                                    </el-button>
-                                </div>
-                            </template>
-                        </el-popover>
-                    </el-space>
-                </el-header>
+                <el-header height="20px" />
                 <el-divider />
                 <el-container>
                     <el-main>
@@ -78,18 +43,7 @@
                                 </el-descriptions-item>
                                 <el-descriptions-item align="center">
                                     <template #label>
-                                        <span>子图数</span>
-                                    </template>
-                                    <span style="font-size: 30px;">
-                                        {{ graph.subgraphNum }}
-                                    </span>
-                                    <span>
-                                        个
-                                    </span>
-                                </el-descriptions-item>
-                                <el-descriptions-item align="center">
-                                    <template #label>
-                                        <span>模型描述</span>
+                                        <span>子图描述</span>
                                     </template>
                                     <span style="font-size: 30px;">
                                         {{ graph.description }}
@@ -143,143 +97,6 @@
                             </el-descriptions>
                         </el-card>
                     </el-aside>
-                    <el-aside v-else-if="aside.cur === '实体查询'">
-                        <el-card header="实体查询">
-                            实体标签：<el-select
-                                v-model="entityQueryForm.label"
-                                style="width: 50%;"
-                                @change="entityQueryLabelChange(entityQueryForm)"
-                            >
-                                <el-option v-for="label in labels.list" :key="label.name" :label="label.name" :value="label.name" />
-                            </el-select>
-                            <el-divider />
-                            <el-descriptions border column="1">
-                                <el-descriptions-item
-                                    v-for="(attribute, index) in entityQueryForm.attributes"
-                                    :key="attribute.name"
-                                    :label="attribute.nameZh + '（' + attribute.name + '）'"
-                                    align="center"
-                                >
-                                    <el-select v-model="entityQueryForm.operators[index]">
-                                        <el-option v-for="condition in entityQueryForm.conditions[index]" :key="condition" :value="condition" />
-                                    </el-select>
-                                    <el-input v-model="entityQueryForm.values[index]" />
-                                </el-descriptions-item>
-                            </el-descriptions>
-                            <el-divider />
-                            <el-space>
-                                <el-button @click="entityQuery()">
-                                    查询
-                                </el-button>
-                                <el-button @click="SubgraphSelect()">
-                                    添加子图
-                                </el-button>
-                            </el-space>
-                        </el-card>
-                        <el-card v-if="SubgraphTableShow.show" header="添加到子图">
-                            <el-table
-                                :data="subGraphs.list"
-                                :header-cell-style="{'text-align': 'center'}"
-                                :cell-style="{'text-align': 'center'}"
-                                highlight-current-row
-                                @selection-change="handleSelectionChange"
-                            >
-                                <template #empty>
-                                    <span>暂无图谱数据，请点击右上角按钮新增子图</span>
-                                </template>
-                                <el-table-column type="selection" width="55" />
-                                <el-table-column prop="name" label="子图名称" />
-                                <el-table-column prop="description" label="子图描述" />
-                            </el-table>
-                            <p />
-                            <el-space>
-                                <el-button type="primary" @click="handleSubgraphAdd">添加</el-button>
-                                <el-button @click="SubgraphTableShow.show = false">取消</el-button>
-                            </el-space>
-                        </el-card>
-                    </el-aside>
-                    <el-aside v-else-if="aside.cur === '关系查询'">
-                        <el-card header="关系查询">
-                            关系类型：<el-select
-                                v-model="relationQueryForm.type"
-                                style="width: 50%;"
-                                @change="relationQueryTypeChange"
-                            >
-                                <el-option v-for="type in types.list" :key="type.name" :label="type.name" :value="type.name" />
-                            </el-select>
-                            <el-divider />
-                            <el-descriptions border column="1">
-                                <el-descriptions-item
-                                    v-for="(attribute, index) in relationQueryForm.attributes"
-                                    :key="attribute.name"
-                                    :label="attribute.nameZh + '（' + attribute.name + '）'"
-                                    align="center"
-                                >
-                                    <el-select v-model="relationQueryForm.operators[index]">
-                                        <el-option v-for="condition in relationQueryForm.conditions[index]" :key="condition" :value="condition" />
-                                    </el-select>
-                                    <el-input v-model="relationQueryForm.values[index]" />
-                                </el-descriptions-item>
-                            </el-descriptions>
-                            <el-divider />
-                            <el-collapse accordion>
-                                <el-collapse-item title="源实体" name="source">
-                                    <el-card>
-                                        源实体标签：<el-select
-                                            v-model="query.relation.source.label"
-                                            style="width: 50%;"
-                                            @change="entityQueryLabelChange(query.relation.source)"
-                                        >
-                                            <el-option v-for="label in labels.list" :key="label.name" :label="label.name" :value="label.name" />
-                                        </el-select>
-                                        <el-divider />
-                                        <el-descriptions border column="1">
-                                            <el-descriptions-item
-                                                v-for="(attribute, index) in query.relation.source.attributes"
-                                                :key="attribute.name"
-                                                :label="attribute.nameZh + '（' + attribute.name + '）'"
-                                                align="center"
-                                            >
-                                                <el-select v-model="query.relation.source.operators[index]">
-                                                    <el-option v-for="condition in query.relation.source.conditions[index]" :key="condition" :value="condition" />
-                                                </el-select>
-                                                <el-input v-model="query.relation.source.values[index]" />
-                                            </el-descriptions-item>
-                                        </el-descriptions>
-                                    </el-card>
-                                </el-collapse-item>
-                                <el-collapse-item title="目标实体" name="target">
-                                    <el-card>
-                                        源实体标签：<el-select
-                                            v-model="query.relation.target.label"
-                                            style="width: 50%;"
-                                            @change="entityQueryLabelChange(query.relation.target)"
-                                        >
-                                            <el-option v-for="label in labels.list" :key="label.name" :label="label.name" :value="label.name" />
-                                        </el-select>
-                                        <el-divider />
-                                        <el-descriptions border column="1">
-                                            <el-descriptions-item
-                                                v-for="(attribute, index) in query.relation.target.attributes"
-                                                :key="attribute.name"
-                                                :label="attribute.nameZh + '（' + attribute.name + '）'"
-                                                align="center"
-                                            >
-                                                <el-select v-model="query.relation.target.operators[index]">
-                                                    <el-option v-for="condition in query.relation.target.conditions[index]" :key="condition" :value="condition" />
-                                                </el-select>
-                                                <el-input v-model="query.relation.target.values[index]" />
-                                            </el-descriptions-item>
-                                        </el-descriptions>
-                                    </el-card>
-                                </el-collapse-item>
-                            </el-collapse>
-                            <el-divider />
-                            <el-button @click="relationQuery()">
-                                查询
-                            </el-button>
-                        </el-card>
-                    </el-aside>
                 </el-container>
             </el-container>
         </page-main>
@@ -293,22 +110,23 @@ import {
     getEntitiesQuery, getEntityNeighbors,
     getGraphById,
     getLabelAttributeMap,
-    getRelations, getRelationsQueryEntities, getSubgraphs,
+    getRelationsQueryEntities,
     getTypeAttributeMap
 } from '@/api/graph'
 import G6 from '@antv/g6'
 import { getLabels, getOntologyColorMap, getTypes } from '@/api/project'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
-import { ElDivider, ElMessage } from 'element-plus'
+import { ElDivider } from 'element-plus'
 import { fittingString, uniqueFunc } from '@/views/graphs/graph_method'
-import { createSubgraphContent } from '@/api/subgraph'
+import { getSubgraphById, getSubgraphEntities } from '@/api/subgraph'
 
 export default defineComponent({
-    name: 'Tableview',
+    name: 'SubgraphView',
     setup() {
         const router = useRouter()
         const spacer = h(ElDivider, { direction: 'vertical' })
+        const subgraphId = router.currentRoute.value.params.subgraphId
         const graphId = router.currentRoute.value.params.id
         const graph = reactive({
             colorMap: Map,
@@ -625,73 +443,24 @@ export default defineComponent({
             pageChange()
         }
 
-        // 子图相关********************-start-***************************
-        const subgraphContentForm = reactive({
-            type: null,
-            index: null,
-            content: ''
-        })
-
-        const subGraphs = reactive({
-            list: []
-        })
-        const SubgraphTableShow = reactive({
-            show: false
-        })
-        const SubgraphSelect = () => {
-            SubgraphTableShow.show = true
-        }
-
-        const multipleSelection = reactive({
-            list: []
-        })
-        const handleSelectionChange = val => {
-            multipleSelection.list = val
-            console.log(val)
-        }
-
-        const handleSubgraphAdd = () => {
-            for (var subgraph of multipleSelection.list) {
-                console.log(subgraph.id)
-                if (query.entity.length !== 0 && query.relation.r.length === 0) {
-                    subgraphContentForm.type = 0
-                    subgraphContentForm.index = graphId
-                    subgraphContentForm.content = 'match (e:' + entityQueryForm.label + ') where ' + query.entity + ' return e '
-                    createSubgraphContent(subgraph.id, subgraphContentForm).then(res => {
-                        if (res.code === 1000) {
-                            ElMessage({
-                                message: '子图数据添加成功',
-                                type: 'success'
-                            })
-                        }
-                    })
-                }
-            }
-        }
-
-        // 子图相关-end-******************************************
-
         onMounted(() => {
+            console.log(graphId)
+            console.log(subgraphId)
             g6Config.width = document.getElementById('container').offsetWidth
             g6Config.height = document.getElementById('container').offsetHeight
             g6Graph.value = new G6.Graph(g6Config)
-            getSubgraphs(graphId).then(res => {
-                subGraphs.list = res.data
-            })
             getGraphById(graphId).then(res => {
                 graph.id = res.data.id
                 graph.name = res.data.name
-                graph.description = res.data.description
-                graph.entityNum = res.data.entityNum
-                graph.relationNum = res.data.relationNum
-                graph.subgraphNum = res.data.subgraphNum
                 graph.projectId = res.data.projectId
                 axios.all([
-                    getEntities(graphId, pagination.size, pagination.page).then(res => {
-                        g6Data.nodes = res.data.data
+                    getSubgraphById(subgraphId).then(res => {
+                        graph.entityNum = res.data.entityNum
+                        graph.relationNum = res.data.relationNum
+                        graph.description = res.data.description
                     }),
-                    getRelations(graphId, 2147483647, 1).then(res => {
-                        g6Data.edges = res.data.data
+                    getSubgraphEntities(subgraphId).then(res => {
+                        g6Data.nodes = res.data
                     })
                 ]).then(() => {
                     getOntologyColorMap(graph.projectId).then(res => {
@@ -775,11 +544,6 @@ export default defineComponent({
             })
         })
         return {
-            handleSubgraphAdd,
-            SubgraphSelect,
-            SubgraphTableShow,
-            subGraphs,
-            handleSelectionChange,
             spacer,
             graph,
             aside,

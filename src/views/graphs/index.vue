@@ -62,6 +62,13 @@
                                     </el-icon>
                                 </template>
                             </el-button>
+                            <el-button link @click="createSubGraphClick(scope.row.id, scope.row.name)">
+                                <template #icon>
+                                    <el-icon @click="scope">
+                                        <svg-icon name="addSubGraph" />
+                                    </el-icon>
+                                </template>
+                            </el-button>
                             <el-button link @click="deleteGraph(project.id, scope.row.id)">
                                 <template #icon>
                                     <el-icon @click="scope">
@@ -95,6 +102,80 @@
             </el-form>
         </el-dialog>
         <el-dialog
+            v-model="createSubGraphDialog.visible"
+            title="子图管理"
+            :draggable="createSubGraphDialog.draggable"
+            :center="createSubGraphDialog.center"
+            width="70%"
+            @close="SubGraphDialogClose"
+        >
+            <el-space>
+                <span>{{ createSubGraphDialog.graph }}</span>
+                <el-button round @click="createSubAddClick">
+                    <template #icon>
+                        <el-icon>
+                            <svg-icon name="add" />
+                        </el-icon>
+                    </template>
+                    新增子图
+                </el-button>
+                <el-dialog
+                    v-model="createSubAddDialog.visible"
+                    title="新增子图"
+                    :draggable="createSubAddDialog.draggable"
+                    :center="createSubAddDialog.center"
+                    @close="SubAddDialogClose"
+                >
+                    <el-form v-model="createSubGraphForm">
+                        <el-form-item label="子图名称">
+                            <el-input v-model="createSubGraphForm.name" />
+                        </el-form-item>
+                        <el-form-item label="子图描述">
+                            <el-input v-model="createSubGraphForm.description" type="textarea" />
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="createSubGraphSubmit">新增</el-button>
+                            <el-button @click="createSubAddDialog.visible = false">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+            </el-space>
+            <el-container>
+                <el-table
+                    :data="subGraphs.list"
+                    :header-cell-style="{'text-align': 'center'}"
+                    :cell-style="{'text-align': 'center'}"
+                    highlight-current-row
+                >
+                    <template #empty>
+                        <span>暂无图谱数据，请点击右上角按钮新增子图</span>
+                    </template>
+                    <el-table-column prop="name" label="子图名称" />
+                    <el-table-column prop="entityNum" label="实体数" width="80px" />
+                    <el-table-column prop="relationNum" label="关系数" width="80px" />
+                    <el-table-column prop="description" label="子图描述" />
+                    <el-table-column label="操作">
+                        <template #default="scope">
+                            <el-button link @click="tosubgraphview(scope.row.graphId, scope.row.id)">
+                                <template #icon>
+                                    <el-icon @click="scope">
+                                        <svg-icon name="graphvis" />
+                                    </el-icon>
+                                </template>
+                            </el-button>
+                            <el-button link>
+                                <template #icon>
+                                    <el-icon @click="scope">
+                                        <svg-icon name="download" />
+                                    </el-icon>
+                                </template>
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </el-container>
+        </el-dialog>
+        <el-dialog
             v-model="uploadDialog.visible"
             title="上传图谱数据"
             :draggable="uploadDialog.draggable"
@@ -117,7 +198,7 @@ import { defineComponent } from 'vue'
 import { onMounted, reactive } from 'vue'
 import { createGraph, getGraphs, getProjectById, deleteGraphById } from '@/api/project'
 import { ElMessage } from 'element-plus'
-import { uploadGraphData } from '@/api/graph'
+import { uploadGraphData, createSubGraph, getSubgraphs } from '@/api/graph'
 import { useRouter } from 'vue-router/dist/vue-router'
 
 export default defineComponent({
@@ -134,6 +215,11 @@ export default defineComponent({
             list: []
         })
 
+        // 子图列表
+        const subGraphs = reactive({
+            list: []
+        })
+
         // 新增实体标签、关系类型的对话框相关变量
         const createDialog = reactive({
             visible: false,
@@ -147,12 +233,54 @@ export default defineComponent({
             name: '',
             description: ''
         })
+        const createSubGraphForm = reactive({
+            GraphId: -1,
+            name: '',
+            description: ''
+        })
 
         // 呼出新增本体的对话框
         const createGraphClick = () => {
             createDialog.visible = true
             createForm.projectId = project.id
             console.log(createForm)
+        }
+
+        // 唤出子图管理的对话框
+        const createSubGraphClick = (id, name) => {
+            createSubGraphDialog.visible = true
+            createSubGraphDialog.graph = name
+            createSubGraphForm.GraphId = id
+            getSubgraphs(id).then(res => {
+                subGraphs.list = res.data
+            })
+            console.log(id)
+        }
+        const createSubAddDialog = reactive({
+            visible: false,
+            draggable: true,
+            center: true
+        })
+        const createSubAddClick = () => {
+            createSubAddDialog.visible = true
+        }
+
+        const SubAddDialogClose = () => {
+            createSubGraphForm.name = ''
+            createSubGraphForm.description = ''
+        }
+
+        // 新增实体标签、关系类型的对话框相关变量
+        const createSubGraphDialog = reactive({
+            visible: false,
+            draggable: false,
+            center: true,
+            graph: null,
+            id: -1
+        })
+
+        const SubGraphDialogClose = () => {
+            createSubGraphForm.GraphId = -1
         }
 
         // 新增本体对话框关闭
@@ -177,6 +305,28 @@ export default defineComponent({
                 })
                 createDialog.visible = false
             })
+        }
+
+        // 新增子图
+        const createSubGraphSubmit = () => {
+            createSubGraph(createSubGraphForm.GraphId, createSubGraphForm).then(res => {
+                if (res.code === 1000) {
+                    ElMessage({
+                        message: '新增子图成功',
+                        type: 'success'
+                    })
+                }
+                getGraphs(project.id).then(res => {
+                    graphs.list = res.data
+                })
+                getSubgraphs(createSubGraphForm.GraphId).then(res => {
+                    subGraphs.list = res.data
+                })
+                // getSubgraphs
+                createSubAddDialog.visible = false
+
+            })
+            console.log(createSubGraphForm)
         }
 
         // 删除图谱
@@ -253,6 +403,18 @@ export default defineComponent({
             })
         }
 
+        const tosubgraphview = (graphId, id) => {
+            console.log(graphId)
+            console.log(id)
+            router.push({
+                name: 'subgraphview',
+                params: {
+                    id: graphId,
+                    subgraphId: id
+                }
+            })
+        }
+
         onMounted(() => {
             // 从本体存储中读取出projectId
             const projectId = localStorage.getItem('projectId')
@@ -271,9 +433,18 @@ export default defineComponent({
         return {
             project,
             graphs,
+            subGraphs,
+            createSubGraphForm,
             createDialog,
+            createSubAddClick,
+            createSubGraphDialog,
+            createSubAddDialog,
+            SubGraphDialogClose,
+            SubAddDialogClose,
+            createSubGraphSubmit,
             createForm,
             createGraphClick,
+            createSubGraphClick,
             createDialogClose,
             createGraphSubmit,
             deleteGraph,
@@ -283,7 +454,8 @@ export default defineComponent({
             upload,
             uploadSuccess,
             toTableview,
-            toGraphview
+            toGraphview,
+            tosubgraphview
         }
     }
 })

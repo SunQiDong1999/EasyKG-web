@@ -6,6 +6,18 @@ export const uploadGraphData = (id, data) => {
         data
     )
 }
+export const createSubGraph = (id, createForm) => {
+    return api.post(
+        'graph/' + id + '/subgraph',
+        createForm
+    )
+}
+
+export const getSubgraphs = id => {
+    return api.get(
+        'graph/' + id + '/subgraphs'
+    )
+}
 
 export const getGraphById = id => {
     return api.get(
@@ -102,19 +114,6 @@ export const getRelations = (id, size, page) => {
             params: {
                 size: size,
                 page: page
-            }
-        }
-    )
-}
-
-export const getRelationsQuery = (id, type, size, page, query) => {
-    return api.get(
-        'graph/' + id + '/relations-query', {
-            params: {
-                type: type,
-                size: size,
-                page: page,
-                query: query
             }
         }
     )

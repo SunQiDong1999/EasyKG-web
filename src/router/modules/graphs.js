@@ -41,6 +41,17 @@ export default {
                 breadcrumb: true,
                 activeMenu: '/graphs'
             }
+        },
+        {
+            path: '/subgraphview/:id/:subgraphId',
+            name: 'subgraphview',
+            component: () => import('@/views/graphs/subgraphview.vue'),
+            meta: {
+                title: '子图视图',
+                sidebar: false,
+                breadcrumb: true,
+                activeMenu: '/graphs'
+            }
         }
     ]
 }
