@@ -11,6 +11,7 @@
 <script setup name="Login">
 import useSettingsStore from '@/store/modules/settings'
 import useUserStore from '@/store/modules/user'
+import { onMounted } from 'vue'
 
 const route = useRoute(), router = useRouter()
 

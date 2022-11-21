@@ -20,6 +20,12 @@ export const getSubgraphEntities = subgraphId => {
     )
 }
 
+export const getSubgraphRelations = subgraphId => {
+    return api.get(
+        'subgraph/' + subgraphId + '/relations'
+    )
+}
+
 export const getSubgraphById = id => {
     return api.get(
         'subgraph/' + id

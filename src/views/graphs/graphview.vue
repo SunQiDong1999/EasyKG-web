@@ -98,7 +98,7 @@
                             </el-descriptions>
                         </el-card>
                         <el-divider />
-                        <el-card id="minimap" header="缩略图" shadow="never" style="min-height: 100px" />
+                        <el-card id="minimap" header="缩略图" shadow="never" style="min-height: 100px;" />
                     </el-aside>
                     <el-aside v-else-if="aside.cur === '实体信息'">
                         <el-card header="实体信息" shadow="never">
@@ -174,7 +174,7 @@
                                     查询
                                 </el-button>
                                 <el-button @click="SubgraphSelect()">
-                                    添加子图
+                                    添加子图数据
                                 </el-button>
                             </el-space>
                         </el-card>
@@ -280,6 +280,30 @@
                             <el-button @click="relationQuery()">
                                 查询
                             </el-button>
+                            <el-button @click="SubgraphSelect()">
+                                添加子图数据
+                            </el-button>
+                        </el-card>
+                        <el-card v-if="SubgraphTableShow.showR" header="添加到子图">
+                            <el-table
+                                :data="subGraphs.list"
+                                :header-cell-style="{'text-align': 'center'}"
+                                :cell-style="{'text-align': 'center'}"
+                                highlight-current-row
+                                @selection-change="handleSelectionChange"
+                            >
+                                <template #empty>
+                                    <span>暂无图谱数据，请点击右上角按钮新增子图</span>
+                                </template>
+                                <el-table-column type="selection" width="55" />
+                                <el-table-column prop="name" label="子图名称" />
+                                <el-table-column prop="description" label="子图描述" />
+                            </el-table>
+                            <p />
+                            <el-space>
+                                <el-button type="primary" @click="handleSubgraphAdd">添加</el-button>
+                                <el-button @click="SubgraphTableShow.showR = false">取消</el-button>
+                            </el-space>
                         </el-card>
                     </el-aside>
                 </el-container>
@@ -622,12 +646,13 @@ export default defineComponent({
             for (let i = 1; i < queryList.length; i++) {
                 query.relation.r += ' and ' + queryList[i]
             }
-
+            console.log(query.relation.r)
             pagination.page = 1
             pageChange()
         }
 
         // 子图相关********************-start-***************************
+
         const subgraphContentForm = reactive({
             type: null,
             index: null,
@@ -638,15 +663,21 @@ export default defineComponent({
             list: []
         })
         const SubgraphTableShow = reactive({
-            show: false
+            show: false,
+            showR: false
         })
-        const SubgraphSelect = () => {
-            SubgraphTableShow.show = true
-        }
 
         const multipleSelection = reactive({
             list: []
         })
+        const SubgraphSelect = () => {
+            if (aside.cur === '实体查询') {
+                SubgraphTableShow.show = true
+            } else if (aside.cur === '关系查询') {
+                SubgraphTableShow.showR = true
+            }
+        }
+
         const handleSelectionChange = val => {
             multipleSelection.list = val
             console.log(val)
@@ -658,7 +689,25 @@ export default defineComponent({
                 if (query.entity.length !== 0 && query.relation.r.length === 0) {
                     subgraphContentForm.type = 0
                     subgraphContentForm.index = graphId
-                    subgraphContentForm.content = 'match (e:' + entityQueryForm.label + ') where ' + query.entity + ' return e '
+                    subgraphContentForm.content = 'match (e:' + entityQueryForm.label + ')-[r]-(t) where ' + query.entity + ' return e,r,t '
+                    createSubgraphContent(subgraph.id, subgraphContentForm).then(res => {
+                        if (res.code === 1000) {
+                            ElMessage({
+                                message: '子图数据添加成功',
+                                type: 'success'
+                            })
+                        }
+                    })
+                } else if (query.entity.length === 0 && query.relation.r.length !== 0) {
+                    subgraphContentForm.type = 1
+                    subgraphContentForm.index = graphId
+                    if (query.relation.source.label.length !== 0 && !query.relation.source.label.includes(':')) {
+                        query.relation.source.label = ':' + query.relation.source.label
+                    }
+                    if (query.relation.target.label.length !== 0 && !query.relation.target.label.includes(':')) {
+                        query.relation.target.label = ':' + query.relation.target.label
+                    }
+                    subgraphContentForm.content = 'match (s' + query.relation.source.label + ')-[r:' + relationQueryForm.type + ']->(t' + query.relation.target.label + ') where ' + query.relation.r + ' return s,r,t '
                     createSubgraphContent(subgraph.id, subgraphContentForm).then(res => {
                         if (res.code === 1000) {
                             ElMessage({

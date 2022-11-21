@@ -119,7 +119,7 @@ import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { ElDivider } from 'element-plus'
 import { fittingString, uniqueFunc } from '@/views/graphs/graph_method'
-import { getSubgraphById, getSubgraphEntities } from '@/api/subgraph'
+import { getSubgraphById, getSubgraphEntities, getSubgraphRelations } from '@/api/subgraph'
 
 export default defineComponent({
     name: 'SubgraphView',
@@ -461,6 +461,9 @@ export default defineComponent({
                     }),
                     getSubgraphEntities(subgraphId).then(res => {
                         g6Data.nodes = res.data
+                    }),
+                    getSubgraphRelations(subgraphId).then(res => {
+                        g6Data.edges = res.data
                     })
                 ]).then(() => {
                     getOntologyColorMap(graph.projectId).then(res => {
