@@ -74,3 +74,16 @@ export const getOntologyColorMap = id => {
         'project/' + id + '/ontology-color-map'
     )
 }
+
+export const createModel = (id, createForm) => {
+    return api.post(
+        'project/' + id + '/model',
+        createForm
+    )
+}
+
+export const getModels = id => {
+    return api.get(
+        'project/' + id + '/models'
+    )
+}

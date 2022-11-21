@@ -25,7 +25,7 @@
                                 <el-button link>
                                     <template #icon>
                                         <el-icon>
-                                            <svg-icon name="ep:search" />
+                                            <svg-icon name="search" />
                                         </el-icon>
                                     </template>
                                 </el-button>
