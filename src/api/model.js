@@ -28,12 +28,23 @@ export const progress = id => {
 export const getResult = id => {
     return api.get(
         'model/' + id + '/result'
-
     )
 }
 
 export const downloadResult = id => {
     window.open(
         'http://127.0.0.1:9000/proxy/model/' + id + '/download'
+    )
+}
+
+export const addSubgraph = (id, subgraphId) => {
+    return api.post(
+        'model/' + id + '/subgraph/' + subgraphId
+    )
+}
+
+export const getModelSubgraphs = id => {
+    return api.get(
+        'model/' + id + '/subgraph'
     )
 }

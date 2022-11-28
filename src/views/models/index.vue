@@ -146,12 +146,62 @@
             />
         </el-dialog>
         <el-dialog
+            v-model="selectDialog.visible"
+            title="选择子图"
+            :draggable="selectDialog.draggable"
+            :center="selectDialog.center"
+            @close="selectDialogClose"
+        >
+            <el-card>
+                <el-space>
+                    请选择要添加的子图：
+                    <el-select v-model="subgraphs.cur">
+                        <el-option
+                            v-for="subgraph in subgraphs.list"
+                            :key="subgraph.id"
+                            :label="subgraph.name"
+                            :value="subgraph.id"
+                        />
+                    </el-select>
+                    <el-button @click="subgraphAddConfirm">
+                        添加
+                    </el-button>
+                </el-space>
+                <el-divider />
+                <el-table
+                    :data="selectDialog.subgraphs"
+                    :header-cell-style="{'text-align': 'center'}"
+                    :cell-style="{'text-align': 'center'}"
+                    highlight-current-row
+                >
+                    <template #empty>
+                        <span>暂无图谱数据，请点击右上角按钮新增子图</span>
+                    </template>
+                    <el-table-column prop="name" label="子图名称" />
+                    <el-table-column prop="entityNum" label="实体数" width="80px" />
+                    <el-table-column prop="relationNum" label="关系数" width="80px" />
+                    <el-table-column prop="description" label="子图描述" />
+                    <el-table-column label="操作">
+                        <template #default="scope">
+                            <el-button link @click="deleteSubgraph(scope.row.id)">
+                                <template #icon>
+                                    <el-icon>
+                                        <svg-icon name="delete" />
+                                    </el-icon>
+                                </template>
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </el-card>
+        </el-dialog>
+        <el-dialog
             v-model="resultDialog.visible"
             title="结果展示"
             :draggable="resultDialog.draggable"
             :center="resultDialog.center"
         >
-            <el-card v-if="resultDialog.type === 0" shadow="never">
+            <el-card v-if="resultDialog.type === 0 || resultDialog.type === 1" shadow="never">
                 <json-viewer
                     :value="resultDialog.data"
                     copyable
@@ -164,9 +214,18 @@
 
 <script>
 import { defineComponent, onMounted, reactive, ref } from 'vue'
-import { createModel, getModels, getProjectById } from '@/api/project'
+import { createModel, getModels, getProjectById, getSubgraphs } from '@/api/project'
 import { ElMessage } from 'element-plus'
-import { downloadResult, fileUpload, getResult, progress, run, testConnected } from '@/api/model'
+import {
+    addSubgraph,
+    downloadResult,
+    fileUpload,
+    getResult,
+    progress,
+    run,
+    testConnected,
+    getModelSubgraphs
+} from '@/api/model'
 
 export default defineComponent({
     name: 'Index',
@@ -250,6 +309,8 @@ export default defineComponent({
         const uploadModelData = (id, inputType) => {
             if (inputType === 0) {
                 uploadDialogOpen(id)
+            } else if (inputType == 1) {
+                selectDialogOpen(id)
             }
         }
 
@@ -357,6 +418,41 @@ export default defineComponent({
             center: true
         })
 
+        // 选择子图进行传输
+        const selectDialog = reactive({
+            visible: false,
+            draggable: false,
+            center: true,
+            subgraphs: []
+        })
+
+        const selectDialogOpen = id => {
+            selectDialog.visible = true
+            selectDialog.modelId = id
+            getModelSubgraphs(selectDialog.modelId).then(res => {
+                selectDialog.subgraphs = [...res.data]
+            })
+        }
+        const selectDialogClose = () => {
+            selectDialog.subgraphs = []
+        }
+        // 子图列表
+        const subgraphs = reactive({
+            list: [],
+            cur: undefined
+        })
+        const subgraphAddConfirm = () => {
+            addSubgraph(selectDialog.modelId, subgraphs.cur).then(() => {
+                getModelSubgraphs(selectDialog.modelId).then(res => {
+                    selectDialog.subgraphs = [...res.data]
+                })
+            }
+            )
+        }
+        const deleteSubgraph = id => {
+            console.log(id)
+        }
+
         onMounted(() => {
             // 从本体存储中读取出projectId
             const projectId = localStorage.getItem('projectId')
@@ -369,6 +465,9 @@ export default defineComponent({
                 project.graphNum = res.data.graphNum
                 project.modelNum = res.data.modelNum
                 refreshModelList()
+                getSubgraphs(project.id).then(res => {
+                    subgraphs.list = [...res.data]
+                })
             })
         })
 
@@ -390,7 +489,13 @@ export default defineComponent({
             colors,
             viewResult,
             resultDialog,
-            download
+            download,
+            selectDialog,
+            selectDialogOpen,
+            selectDialogClose,
+            subgraphs,
+            subgraphAddConfirm,
+            deleteSubgraph
         }
     }
 })

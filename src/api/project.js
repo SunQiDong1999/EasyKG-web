@@ -87,3 +87,9 @@ export const getModels = id => {
         'project/' + id + '/models'
     )
 }
+
+export const getSubgraphs = id => {
+    return api.get(
+        'project/' + id + '/subgraphs'
+    )
+}
