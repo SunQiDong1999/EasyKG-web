@@ -34,48 +34,60 @@
                     <el-table-column prop="description" label="图谱描述" />
                     <el-table-column label="操作">
                         <template #default="scope">
-                            <el-button link @click="uploadDialogOpen(scope.row.id)">
-                                <template #icon>
-                                    <el-icon>
-                                        <svg-icon name="upload" />
-                                    </el-icon>
-                                </template>
-                            </el-button>
-                            <el-button link @click="toTableview(scope.row.id)">
-                                <template #icon>
-                                    <el-icon @click="scope">
-                                        <svg-icon name="tablevis" />
-                                    </el-icon>
-                                </template>
-                            </el-button>
-                            <el-button link @click="toGraphview(scope.row.id)">
-                                <template #icon>
-                                    <el-icon @click="scope">
-                                        <svg-icon name="graphvis" />
-                                    </el-icon>
-                                </template>
-                            </el-button>
-                            <el-button link>
-                                <template #icon>
-                                    <el-icon @click="scope">
-                                        <svg-icon name="download" />
-                                    </el-icon>
-                                </template>
-                            </el-button>
-                            <el-button link @click="createSubGraphClick(scope.row.id, scope.row.name)">
-                                <template #icon>
-                                    <el-icon @click="scope">
-                                        <svg-icon name="addSubGraph" />
-                                    </el-icon>
-                                </template>
-                            </el-button>
-                            <el-button link @click="deleteGraph(project.id, scope.row.id)">
-                                <template #icon>
-                                    <el-icon @click="scope">
-                                        <svg-icon name="delete" />
-                                    </el-icon>
-                                </template>
-                            </el-button>
+                            <el-tooltip content="上传数据" effect="light" :hide-after="0">
+                                <el-button link @click="uploadDialogOpen(scope.row.id)">
+                                    <template #icon>
+                                        <el-icon>
+                                            <svg-icon name="upload" />
+                                        </el-icon>
+                                    </template>
+                                </el-button>
+                            </el-tooltip>
+                            <el-tooltip content="列表视图" effect="light" :hide-after="0">
+                                <el-button link @click="toTableview(scope.row.id)">
+                                    <template #icon>
+                                        <el-icon @click="scope">
+                                            <svg-icon name="tablevis" />
+                                        </el-icon>
+                                    </template>
+                                </el-button>
+                            </el-tooltip>
+                            <el-tooltip content="图谱视图" effect="light" :hide-after="0">
+                                <el-button link @click="toGraphview(scope.row.id)">
+                                    <template #icon>
+                                        <el-icon @click="scope">
+                                            <svg-icon name="graphvis" />
+                                        </el-icon>
+                                    </template>
+                                </el-button>
+                            </el-tooltip>
+                            <el-tooltip content="导出数据" effect="light" :hide-after="0">
+                                <el-button link>
+                                    <template #icon>
+                                        <el-icon @click="scope">
+                                            <svg-icon name="download" />
+                                        </el-icon>
+                                    </template>
+                                </el-button>
+                            </el-tooltip>
+                            <el-tooltip content="子图管理" effect="light" :hide-after="0">
+                                <el-button link @click="createSubGraphClick(scope.row.id, scope.row.name)">
+                                    <template #icon>
+                                        <el-icon @click="scope">
+                                            <svg-icon name="addSubgraph2" />
+                                        </el-icon>
+                                    </template>
+                                </el-button>
+                            </el-tooltip>
+                            <el-tooltip content="删除" effect="light" :hide-after="0">
+                                <el-button link @click="deleteGraph(project.id, scope.row.id)">
+                                    <template #icon>
+                                        <el-icon @click="scope">
+                                            <svg-icon name="delete" />
+                                        </el-icon>
+                                    </template>
+                                </el-button>
+                            </el-tooltip>
                         </template>
                     </el-table-column>
                 </el-table>

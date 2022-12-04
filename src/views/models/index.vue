@@ -16,85 +16,103 @@
             </el-space>
         </page-header>
         <page-main>
-            <el-row :gutter="6">
-                <el-col v-for="model in modelList" :key="model.id" :span="6">
-                    <el-card shadow="hover">
-                        <el-row align="middle" justify="center">
-                            <el-col :span="12">
-                                <div class="card-header">
-                                    <div>
-                                        <el-badge v-if="model.isConnected" is-dot type="success" class="item">
-                                            {{ model.name }}
-                                        </el-badge>
-                                        <el-badge v-else is-dot type="danger" class="item">
-                                            <span>{{ model.name }}</span>
-                                        </el-badge>
-                                        <br>
-                                        <span style="font-size: 10px; color: #6d737b;">{{ model.description }}</span>
-                                    </div>
-                                </div>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-progress type="dashboard" :percentage="model.percentage" :color="colors" />
-                            </el-col>
-                        </el-row>
-                        <el-divider />
-                        <el-row justify="center">
-                            <el-space size="large">
-                                <el-button link @click="testModelConnected(model.id)">
-                                    <template #icon>
-                                        <el-icon>
-                                            <svg-icon name="refresh" />
-                                        </el-icon>
-                                    </template>
-                                </el-button>
-                                <el-button link @click="uploadModelData(model.id, model.inputType)">
-                                    <template #icon>
-                                        <el-icon>
-                                            <svg-icon name="upload" />
-                                        </el-icon>
-                                    </template>
-                                </el-button>
-                                <el-button link @click="runModel(model.id)">
-                                    <template #icon>
-                                        <el-icon>
-                                            <svg-icon name="start" />
-                                        </el-icon>
-                                    </template>
-                                </el-button>
-                                <el-button link @click="viewResult(model.id, model.resultType)">
-                                    <template #icon>
-                                        <el-icon>
-                                            <svg-icon name="eye" />
-                                        </el-icon>
-                                    </template>
-                                </el-button>
-                                <el-button link @click="download(model.id)">
-                                    <template #icon>
-                                        <el-icon>
-                                            <svg-icon name="download" />
-                                        </el-icon>
-                                    </template>
-                                </el-button>
-                                <el-button link>
-                                    <template #icon>
-                                        <el-icon>
-                                            <svg-icon name="cancel-1" />
-                                        </el-icon>
-                                    </template>
-                                </el-button>
-                                <el-button link>
-                                    <template #icon>
-                                        <el-icon>
-                                            <svg-icon name="delete" />
-                                        </el-icon>
-                                    </template>
-                                </el-button>
-                            </el-space>
-                        </el-row>
-                    </el-card>
-                </el-col>
-            </el-row>
+            <el-container>
+                <el-main>
+                    <el-row :gutter="6">
+                        <el-col v-for="model in modelList" :key="model.id" :span="6">
+                            <el-card shadow="hover">
+                                <el-row align="middle" justify="center">
+                                    <el-col :span="12">
+                                        <div class="card-header">
+                                            <div>
+                                                <el-badge v-if="model.isConnected" is-dot type="success" class="item">
+                                                    {{ model.name }}
+                                                </el-badge>
+                                                <el-badge v-else is-dot type="danger" class="item">
+                                                    <span>{{ model.name }}</span>
+                                                </el-badge>
+                                                <br>
+                                                <span style="font-size: 10px; color: #6d737b;">{{ model.description }}</span>
+                                            </div>
+                                        </div>
+                                    </el-col>
+                                    <el-col :span="12">
+                                        <el-progress type="dashboard" :percentage="model.percentage" :color="colors" />
+                                    </el-col>
+                                </el-row>
+                                <el-divider />
+                                <el-row justify="center">
+                                    <el-space size="large">
+                                        <el-tooltip content="测试连通性" effect="light" :hide-after="0">
+                                            <el-button link @click="testModelConnected(model.id)">
+                                                <template #icon>
+                                                    <el-icon>
+                                                        <svg-icon name="refresh" />
+                                                    </el-icon>
+                                                </template>
+                                            </el-button>
+                                        </el-tooltip>
+                                        <el-tooltip content="上传数据" effect="light" :hide-after="0">
+                                            <el-button link @click="uploadModelData(model.id, model.inputType)">
+                                                <template #icon>
+                                                    <el-icon>
+                                                        <svg-icon name="upload" />
+                                                    </el-icon>
+                                                </template>
+                                            </el-button>
+                                        </el-tooltip>
+                                        <el-tooltip content="运行" effect="light" :hide-after="0">
+                                            <el-button link @click="runModel(model.id)">
+                                                <template #icon>
+                                                    <el-icon>
+                                                        <svg-icon name="start" />
+                                                    </el-icon>
+                                                </template>
+                                            </el-button>
+                                        </el-tooltip>
+                                        <el-tooltip content="查看结果" effect="light" :hide-after="0">
+                                            <el-button link @click="viewResult(model.id, model.resultType)">
+                                                <template #icon>
+                                                    <el-icon>
+                                                        <svg-icon name="eye" />
+                                                    </el-icon>
+                                                </template>
+                                            </el-button>
+                                        </el-tooltip>
+                                        <el-tooltip content="下载结果" effect="light" :hide-after="0">
+                                            <el-button link @click="download(model.id)">
+                                                <template #icon>
+                                                    <el-icon>
+                                                        <svg-icon name="download" />
+                                                    </el-icon>
+                                                </template>
+                                            </el-button>
+                                        </el-tooltip>
+                                        <el-tooltip content="取消运行" effect="light" :hide-after="0">
+                                            <el-button link>
+                                                <template #icon>
+                                                    <el-icon>
+                                                        <svg-icon name="cancel-1" />
+                                                    </el-icon>
+                                                </template>
+                                            </el-button>
+                                        </el-tooltip>
+                                        <el-tooltip content="删除" effect="light" :hide-after="0">
+                                            <el-button link>
+                                                <template #icon>
+                                                    <el-icon>
+                                                        <svg-icon name="delete" />
+                                                    </el-icon>
+                                                </template>
+                                            </el-button>
+                                        </el-tooltip>
+                                    </el-space>
+                                </el-row>
+                            </el-card>
+                        </el-col>
+                    </el-row>
+                </el-main>
+            </el-container>
         </page-main>
         <el-dialog
             v-model="createDialog.visible"
@@ -141,6 +159,7 @@
                 :files="uploadDialog.files"
                 action="#"
                 :ext="['json', 'xlsx']"
+                :size="100"
                 @on-success="uploadSuccess"
                 @http-request="upload"
             />

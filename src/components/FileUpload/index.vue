@@ -101,7 +101,7 @@ function upload(param) {
         </template>
     </el-upload>
     <el-button class="ml-3" type="success" @click="submitUpload">
-        upload to server
+        上传
     </el-button>
 </template>
 

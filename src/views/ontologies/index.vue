@@ -28,6 +28,7 @@
                 <el-aside>
                     <el-menu
                         unique-opened
+                        :default-active="project.baseEntityId.toString()"
                         @select="selectOntology"
                     >
                         <el-sub-menu index="labels">
@@ -58,18 +59,6 @@
                         </div>
                     </el-header>
                     <el-main>
-                        <el-container>
-                            <el-main>
-                                <el-card shadow="never">
-                                    <template #header>
-                                        <div>
-                                            <span>继承关系图</span>
-                                        </div>
-                                    </template>
-                                    <div id="InheritanceGraph" />
-                                </el-card>
-                            </el-main>
-                        </el-container>
                         <el-container>
                             <el-main>
                                 <el-form v-model="ontologyForm">
@@ -136,25 +125,41 @@
                                             </el-table-column>
                                             <el-table-column label="操作">
                                                 <template #default="scope">
-                                                    <el-button link>
-                                                        <template #icon>
-                                                            <el-icon @click="deleteRow(scope.$index)">
-                                                                <svg-icon name="delete" />
-                                                            </el-icon>
-                                                        </template>
-                                                    </el-button>
-                                                    <el-button v-if="scope.$index === ontologyForm.attributes.length - 1" link>
-                                                        <template #icon>
-                                                            <el-icon @click="addRow(0)">
-                                                                <svg-icon name="add" />
-                                                            </el-icon>
-                                                        </template>
-                                                    </el-button>
+                                                    <el-tooltip content="删除" effect="light" :hide-after="0">
+                                                        <el-button link>
+                                                            <template #icon>
+                                                                <el-icon @click="deleteRow(scope.$index)">
+                                                                    <svg-icon name="delete" />
+                                                                </el-icon>
+                                                            </template>
+                                                        </el-button>
+                                                    </el-tooltip>
+                                                    <el-tooltip content="添加" effect="light" :hide-after="0">
+                                                        <el-button v-if="scope.$index === ontologyForm.attributes.length - 1" link>
+                                                            <template #icon>
+                                                                <el-icon @click="addRow(scope.$index)">
+                                                                    <svg-icon name="add" />
+                                                                </el-icon>
+                                                            </template>
+                                                        </el-button>
+                                                    </el-tooltip>
                                                 </template>
                                             </el-table-column>
                                         </el-table>
                                     </el-card>
                                 </el-form>
+                            </el-main>
+                        </el-container>
+                        <el-container>
+                            <el-main>
+                                <el-card shadow="never">
+                                    <template #header>
+                                        <div>
+                                            <span>继承关系图</span>
+                                        </div>
+                                    </template>
+                                    <div id="InheritanceGraph" />
+                                </el-card>
                             </el-main>
                         </el-container>
                     </el-main>
@@ -255,10 +260,8 @@ export default defineComponent({
                 ontologyForm.createdTime = res.data.createdTime
                 ontologyForm.attributes = res.data.attributes
                 ontologyForm.color = res.data.color
-                console.log(ontologyForm)
             })
             getInheritanceDataById(index).then(res => {
-                console.log(res)
                 createInheritanceGraph(res.data)
             })
         }
@@ -298,7 +301,6 @@ export default defineComponent({
 
         // 添加一条属性
         const addRow = index => {
-            console.log(index)
             ontologyForm.attributes.splice(index + 1, 0, {
                 id: -1,
                 ontologyId: ontologyForm.id,
@@ -434,7 +436,6 @@ export default defineComponent({
                     }
                 }
             })
-            console.log(data)
             graph.value.data(data)
             graph.value.render()
             graph.value.fitView()
@@ -461,6 +462,7 @@ export default defineComponent({
                 getLabels(projectId).then(res => {
                     labels.list = [...res.data]
                     project.baseEntityId = labels.list[0].id
+                    selectOntology(project.baseEntityId)
                 })
                 getTypes(projectId).then(res => {
                     types.list = [...res.data]
