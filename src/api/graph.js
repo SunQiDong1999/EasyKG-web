@@ -139,3 +139,9 @@ export const getEntityNeighbors = (id, entityId) => {
         'graph/' + id + '/entities/' + entityId + '/neighbors'
     )
 }
+
+export const getEntityInAndOut = (id, entityId) => {
+    return api.get(
+        'graph/' + id + '/entities/' + entityId + '/inAndOut'
+    )
+}

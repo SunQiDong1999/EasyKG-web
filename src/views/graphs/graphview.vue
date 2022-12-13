@@ -16,12 +16,13 @@
                             :total="pagination.total"
                             @current-change="pageChange"
                         />
-                        <el-popover
+                        <el-tooltip
                             placement="bottom-start"
                             trigger="hover"
                             :show-arrow="false"
+                            effect="light"
                         >
-                            <template #reference>
+                            <template #default>
                                 <el-button link>
                                     <template #icon>
                                         <el-icon>
@@ -30,7 +31,7 @@
                                     </template>
                                 </el-button>
                             </template>
-                            <template #default>
+                            <template #content>
                                 <div style="text-align: center;">
                                     <el-button text @click="aside.cur='实体查询'">
                                         实体查询
@@ -40,7 +41,7 @@
                                     </el-button>
                                 </div>
                             </template>
-                        </el-popover>
+                        </el-tooltip>
                     </el-space>
                 </el-header>
                 <el-divider />
@@ -102,12 +103,12 @@
                     </el-aside>
                     <el-aside v-else-if="aside.cur === '实体信息'">
                         <el-card header="实体信息" shadow="never">
-                            <el-descriptions border column="1">
+                            <el-descriptions border :column="1">
                                 <template #title>
                                     <el-tag
                                         v-for="label in entityInfo.labels" :key="label"
                                         effect="dark"
-                                        class="mx-1" size="large" :color="graph.colorMap[label]" round
+                                        class="mx-1" size="large" :color="graph.colorMap[label].selectedStroke" round
                                     >
                                         {{ label }}
                                     </el-tag>
@@ -120,16 +121,22 @@
                                 >
                                     {{ entityInfo.info[attribute.name] }}
                                 </el-descriptions-item>
+                                <el-descriptions-item label="入度" align="center">
+                                    {{ entityInfo.inOut[0] }}
+                                </el-descriptions-item>
+                                <el-descriptions-item label="出度" align="center">
+                                    {{ entityInfo.inOut[1] }}
+                                </el-descriptions-item>
                             </el-descriptions>
                         </el-card>
                     </el-aside>
                     <el-aside v-else-if="aside.cur === '关系信息'">
                         <el-card header="关系信息" shadow="never">
-                            <el-descriptions border column="1">
+                            <el-descriptions border :column="1">
                                 <template #title>
                                     <el-tag
                                         effect="dark"
-                                        size="large" :color="graph.colorMap[relationInfo.type]" round
+                                        size="large" :color="graph.colorMap[relationInfo.type].selectedStroke" round
                                     >
                                         {{ relationInfo.type }}
                                     </el-tag>
@@ -155,7 +162,7 @@
                                 <el-option v-for="label in labels.list" :key="label.name" :label="label.name" :value="label.name" />
                             </el-select>
                             <el-divider />
-                            <el-descriptions border column="1">
+                            <el-descriptions border :column="1">
                                 <el-descriptions-item
                                     v-for="(attribute, index) in entityQueryForm.attributes"
                                     :key="attribute.name"
@@ -316,13 +323,13 @@
 import { defineComponent, onMounted, reactive, ref } from 'vue'
 import {
     getEntities,
-    getEntitiesQuery, getEntityNeighbors,
+    getEntitiesQuery, getEntityInAndOut, getEntityNeighbors,
     getGraphById,
     getLabelAttributeMap,
     getRelations, getRelationsQueryEntities, getSubgraphs,
     getTypeAttributeMap
 } from '@/api/graph'
-import G6 from '@antv/g6'
+import G6, { Algorithm } from '@antv/g6'
 import { getLabels, getOntologyColorMap, getTypes } from '@/api/project'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
@@ -337,7 +344,7 @@ export default defineComponent({
         const spacer = h(ElDivider, { direction: 'vertical' })
         const graphId = router.currentRoute.value.params.id
         const graph = reactive({
-            colorMap: Map,
+            colorMap: {},
             labelAttributeMap: Map,
             typeAttributeMap: Map
         })
@@ -356,7 +363,8 @@ export default defineComponent({
         const entityInfo = reactive({
             labels: [],
             infoList: [],
-            info: {}
+            info: {},
+            inOut: []
         })
 
         const relationInfo = reactive({
@@ -395,7 +403,11 @@ export default defineComponent({
             container: 'mountNode', // String | HTMLElement，必须，在 Step 1 中创建的容器 id 或容器本身
             animate: true, // Boolean，可选，全局变化时否使用动画过渡
             modes: {
-                default: ['drag-canvas', 'zoom-canvas', 'drag-node'] // 允许拖拽画布、放缩画布、拖拽节点
+                default: [
+                    'drag-canvas',
+                    'zoom-canvas',
+                    'drag-node'
+                ] // 允许拖拽画布、放缩画布、拖拽节点
             },
             layout: {
                 type: 'force',
@@ -468,17 +480,43 @@ export default defineComponent({
         const setG6Data = g6Data => {
             g6Data.nodes.forEach(node => {
                 node.style = {
-                    fill: graph.colorMap[node.labels[0]]
+                    fill: graph.colorMap[node.labels[0]].mainFill,
+                    stroke: graph.colorMap[node.labels[0]].mainStroke
+                }
+                node.stateStyles = {
+                    active: {
+                        fill: graph.colorMap[node.labels[0]].activeFill,
+                        stroke: graph.colorMap[node.labels[0]].activeStroke,
+                        shadowColor: graph.colorMap[node.labels[0]].activeStroke
+                    },
+                    inactive: {
+                        fill: graph.colorMap[node.labels[0]].inactiveFill,
+                        stroke: graph.colorMap[node.labels[0]].inactiveStroke
+                    },
+                    selected: {
+                        fill: graph.colorMap[node.labels[0]].selectedFill,
+                        stroke: graph.colorMap[node.labels[0]].selectedStroke,
+                        shadowColor: graph.colorMap[node.labels[0]].selectedStroke
+                    },
+                    highlight: {
+                        fill: graph.colorMap[node.labels[0]].highlightFill,
+                        stroke: graph.colorMap[node.labels[0]].highlightStroke
+                    },
+                    disable: {
+                        fill: graph.colorMap[node.labels[0]].disableFill,
+                        stroke: graph.colorMap[node.labels[0]].disableStroke
+                    }
                 }
                 node.label = fittingString(node.label, 50, 12)
             })
             g6Data.edges.forEach(edge => {
                 delete edge.id
                 edge.style = {
-                    stroke: graph.colorMap[edge.type]
+                    stroke: graph.colorMap[edge.label].selectedStroke
                 }
                 edge.label = fittingString(edge.label, 100, 12)
             })
+            G6.Util.processParallelEdges(g6Data.edges)
         }
         // G6实例
         let g6Graph = ref()
@@ -731,7 +769,61 @@ export default defineComponent({
                 container: 'minimap',
                 type: 'default'
             })
-            g6Config.plugins = [minimap]
+            // 实例化 Menu 插件
+            const menu = new G6.Menu({
+                offsetX: 6,
+                offsetY: 10,
+                itemTypes: ['node'],
+                getContent(e) {
+                    const outDiv = document.createElement('el-card')
+                    outDiv.style.width = '180px'
+                    outDiv.innerHTML = '<el-menu>' +
+                        '<el-menu-item index="DFS">深度优先搜索</el-menu-item> <br>' +
+                        '<el-menu-item index="BFS">广度优先搜索</el-menu-item>' +
+                        '</el-menu>'
+                    return outDiv
+                },
+                handleMenuClick(target, item) {
+                    console.log(target.getAttribute('index'), item)
+                    const cal = target.getAttribute('index')
+                    if (cal === 'DFS') {
+                        // DFS
+                        const { depthFirstSearch } = Algorithm
+                        depthFirstSearch(g6Data, item._cfg.model.id, {
+                            enter: ({ current, previous }) => {
+                                console.log('进入', current, previous)// 开始遍历点的回调
+                                const currentNode = g6Graph.value.findById(current)
+                                g6Graph.value.setItemState(currentNode, 'highlight', true)
+                            },
+                            leave: ({ current, previous }) => {
+                                console.log('离开', current, previous)// 遍历完节点的回调
+                            }
+                        })
+                    } else if (cal === 'BFS') {
+                        // BFS
+                        const { breadthFirstSearch } = Algorithm
+                        breadthFirstSearch(g6Data, item._cfg.model.id, {
+                            enter: ({ current, previous }) => {
+                                console.log('进入', current, previous)// 开始遍历点的回调
+                                const currentNode = g6Graph.value.findById(current)
+                                g6Graph.value.setItemState(currentNode, 'highlight', true)
+                            },
+                            leave: ({ current, previous }) => {
+                                console.log('离开', current, previous)// 遍历完节点的回调
+                            }
+                        })
+                    }
+                }
+            })
+
+            function sleep(delay) {
+                const start = (new Date()).getTime()
+                while ((new Date()).getTime() - start < delay) {
+                    continue
+                }
+            }
+
+            g6Config.plugins = [minimap, menu]
 
             g6Graph.value = new G6.Graph(g6Config)
             getSubgraphs(graphId).then(res => {
@@ -754,7 +846,24 @@ export default defineComponent({
                     })
                 ]).then(() => {
                     getOntologyColorMap(graph.projectId).then(res => {
-                        graph.colorMap = res.data
+                        const subjectColors = []
+                        for (const key in res.data) {
+                            subjectColors.push(res.data[key])
+                        }
+                        const backColor = '#fff'
+                        const theme = 'dark'
+                        const disableColor = '#777'
+                        const colorSets = G6.Util.getColorSetsBySubjectColors(
+                            subjectColors,
+                            backColor,
+                            theme,
+                            disableColor
+                        )
+                        let i = 0
+                        for (const key in res.data) {
+                            graph.colorMap[key] = colorSets[i++]
+                        }
+                        console.log(graph.colorMap)
                         setG6Data(g6Data)
                         g6Graph.value.read(g6Data)
                     })
@@ -776,25 +885,25 @@ export default defineComponent({
             // 鼠标进入节点
             g6Graph.value.on('node:mouseenter', e => {
                 const nodeItem = e.item // 获取鼠标进入的节点元素对象
-                g6Graph.value.setItemState(nodeItem, 'hover', true) // 设置当前节点的 hover 状态为 true
+                g6Graph.value.setItemState(nodeItem, 'active', true) // 设置当前节点的 hover 状态为 true
             })
 
             // 鼠标离开节点
             g6Graph.value.on('node:mouseleave', e => {
                 const nodeItem = e.item // 获取鼠标离开的节点元素对象
-                g6Graph.value.setItemState(nodeItem, 'hover', false) // 设置当前节点的 hover 状态为 false
+                g6Graph.value.setItemState(nodeItem, 'active', false) // 设置当前节点的 hover 状态为 false
             })
 
             // 点击节点
             g6Graph.value.on('node:click', e => {
                 aside.cur = '实体信息'
                 // 先将所有当前是 click 状态的节点置为非 click 状态
-                const clickNodes = g6Graph.value.findAllByState('node', 'click')
+                const clickNodes = g6Graph.value.findAllByState('node', 'selected')
                 clickNodes.forEach(cn => {
-                    g6Graph.value.setItemState(cn, 'click', false)
+                    g6Graph.value.setItemState(cn, 'selected', false)
                 })
                 const nodeItem = e.item // 获取被点击的节点元素对象
-                g6Graph.value.setItemState(nodeItem, 'click', true) // 设置当前节点的 click 状态为 true
+                g6Graph.value.setItemState(nodeItem, 'selected', true) // 设置当前节点的 click 状态为 true
                 // 展示实体信息
                 entityInfo.info = nodeItem._cfg.model
                 entityInfo.labels = entityInfo.info.labels
@@ -802,21 +911,25 @@ export default defineComponent({
                 entityInfo.labels.forEach(label => {
                     entityInfo.infoList = [...graph.labelAttributeMap[label]]
                 })
+                // 获取节点的出度和入度
+                getEntityInAndOut(graph.id, entityInfo.info.id).then(res => {
+                    entityInfo.inOut = [...res.data]
+                })
             })
 
             // 点击边
             g6Graph.value.on('edge:click', e => {
                 aside.cur = '关系信息'
                 // 先将所有当前是 click 状态的边置为非 click 状态
-                const clickEdges = g6Graph.value.findAllByState('edge', 'click')
+                const clickEdges = g6Graph.value.findAllByState('edge', 'selected')
                 clickEdges.forEach(ce => {
-                    g6Graph.value.setItemState(ce, 'click', false)
+                    g6Graph.value.setItemState(ce, 'selected', false)
                 })
                 const edgeItem = e.item // 获取被点击的边元素对象
-                g6Graph.value.setItemState(edgeItem, 'click', true) // 设置当前边的 click 状态为 true
+                g6Graph.value.setItemState(edgeItem, 'selected', true) // 设置当前边的 click 状态为 true
                 // 展示关系信息
                 relationInfo.info = edgeItem._cfg.model
-                relationInfo.type = relationInfo.info.type
+                relationInfo.type = relationInfo.info.label
                 relationInfo.infoList = []
                 relationInfo.infoList = [...graph.typeAttributeMap[relationInfo.type]].slice(1)
             })
@@ -826,13 +939,35 @@ export default defineComponent({
                 const nodeItem = e.item // 获取被点击的节点元素对象
                 // 实体信息
                 entityInfo.info = nodeItem._cfg.model
-                getEntityNeighbors(graphId, entityInfo.info.id).then(res => {
+                expandEntity(entityInfo.info.id)
+            })
+            const expandEntity = entityId => {
+                getEntityNeighbors(graphId, entityId).then(res => {
                     g6Data.nodes = uniqueFunc(g6Data.nodes.concat(res.data), 'id')
                     setG6Data(g6Data)
                     g6Graph.value.render() // 读取 Step 2 中的数据源到图上
                 })
+            }
+            // 拖拽动效
+            g6Graph.value.on('node:dragstart', e => {
+                g6Graph.value.layout()
+                refreshDragedNodePosition(e)
+            })
+            g6Graph.value.on('node:drag', e => {
+                const forceLayout = g6Graph.value.get('layoutController').layoutMethods[0]
+                forceLayout.execute()
+                refreshDragedNodePosition(e)
+            })
+            g6Graph.value.on('node:dragend', e => {
+                e.item.get('model').fx = null
+                e.item.get('model').fy = null
             })
         })
+        const refreshDragedNodePosition = e => {
+            const model = e.item.get('model')
+            model.fx = e.x
+            model.fy = e.y
+        }
         return {
             handleSubgraphAdd,
             SubgraphSelect,
