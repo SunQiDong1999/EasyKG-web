@@ -141,6 +141,22 @@ export const getRelationsQueryEntities = (id, type, size, page, query, sourceLab
     )
 }
 
+export const getSelfOptionQueryEntities = (id, type, size, page, query, sourceLabel, targetLabel, path) => {
+    return api.get(
+        'graph/' + id + '/selfOption-query/entities', {
+            params: {
+                type: type,
+                size: size,
+                page: page,
+                query: query,
+                sourceLabel: sourceLabel,
+                targetLabel: targetLabel,
+                path: path
+            }
+        }
+    )
+}
+
 export const getEntityNeighbors = (id, entityId) => {
     return api.get(
         'graph/' + id + '/entities/' + entityId + '/neighbors'

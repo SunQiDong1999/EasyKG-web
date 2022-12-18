@@ -33,20 +33,20 @@ function userCommand(command) {
             break
     }
 }
-function pro() {
-    window.open('https://hooray.gitee.io/fantastic-admin-pro-example/', 'top')
-}
+// function pro() {
+//     window.open('https://hooray.gitee.io/fantastic-admin-pro-example/', 'top')
+// }
 </script>
 
 <template>
     <div class="tools">
         <div class="buttons">
-<!--            <span v-if="settingsStore.mode == 'pc'" class="item item-pro" @click="pro">-->
-<!--                <el-icon>-->
-<!--                    <svg-icon name="pro" />-->
-<!--                </el-icon>-->
-<!--                <span class="title">查看专业版</span>-->
-<!--            </span>-->
+            <!--            <span v-if="settingsStore.mode == 'pc'" class="item item-pro" @click="pro">-->
+            <!--                <el-icon>-->
+            <!--                    <svg-icon name="pro" />-->
+            <!--                </el-icon>-->
+            <!--                <span class="title">查看专业版</span>-->
+            <!--            </span>-->
             <span v-if="settingsStore.topbar.enableNavSearch" class="item" @click="eventBus.emit('global-search-toggle')">
                 <el-icon>
                     <svg-icon name="ep:search" />

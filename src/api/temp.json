@@ -1,0 +1,91 @@
+{
+    "start": {
+        "identity": 167,
+        "labels": [
+            "Person"
+        ],
+        "properties": {
+            "name": "Paul Blythe",
+            "id": 167
+        }
+    },
+    "end": {
+        "identity": 169,
+        "labels": [
+            "Person"
+        ],
+        "properties": {
+            "name": "Jessica Thompson",
+            "id": 169
+        }
+    },
+    "segments": [
+        {
+            "start": {
+                "identity": 167,
+                "labels": [
+                    "Person"
+                ],
+                "properties": {
+                    "name": "Paul Blythe",
+                    "id": 167
+                }
+            },
+            "relationship": {
+                "identity": 241,
+                "start": 167,
+                "end": 168,
+                "type": "FOLLOWS",
+                "properties": {
+                    "sourceId": 167,
+                    "targetId": 168,
+                    "id": 243
+                }
+            },
+            "end": {
+                "identity": 168,
+                "labels": [
+                    "Person"
+                ],
+                "properties": {
+                    "name": "Angela Scope",
+                    "id": 168
+                }
+            }
+        },
+        {
+            "start": {
+                "identity": 168,
+                "labels": [
+                    "Person"
+                ],
+                "properties": {
+                    "name": "Angela Scope",
+                    "id": 168
+                }
+            },
+            "relationship": {
+                "identity": 243,
+                "start": 168,
+                "end": 169,
+                "type": "FOLLOWS",
+                "properties": {
+                    "sourceId": 168,
+                    "targetId": 169,
+                    "id": 242
+                }
+            },
+            "end": {
+                "identity": 169,
+                "labels": [
+                    "Person"
+                ],
+                "properties": {
+                    "name": "Jessica Thompson",
+                    "id": 169
+                }
+            }
+        }
+    ],
+    "length": 2.0
+}
