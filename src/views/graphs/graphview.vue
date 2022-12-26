@@ -47,6 +47,29 @@
                                 </div>
                             </template>
                         </el-tooltip>
+                        <el-tooltip
+                            placement="bottom-start"
+                            trigger="hover"
+                            :show-arrow="false"
+                            effect="light"
+                        >
+                            <template #default>
+                                <el-button link>
+                                    <template #icon>
+                                        <el-icon>
+                                            <svg-icon name="add" />
+                                        </el-icon>
+                                    </template>
+                                </el-button>
+                            </template>
+                            <template #content>
+                                <div style="text-align: center;">
+                                    <el-button text @click="newEntity">
+                                        新增实体
+                                    </el-button>
+                                </div>
+                            </template>
+                        </el-tooltip>
                     </el-space>
                 </el-header>
                 <el-divider />
@@ -95,7 +118,7 @@
                                 </el-descriptions-item>
                                 <el-descriptions-item align="center">
                                     <template #label>
-                                        <span>模型描述</span>
+                                        <span>图谱描述</span>
                                     </template>
                                     <span style="font-size: 30px;">
                                         {{ graph.description }}
@@ -108,31 +131,70 @@
                     </el-aside>
                     <el-aside v-else-if="aside.cur === '实体信息'">
                         <el-card header="实体信息" shadow="never">
-                            <el-descriptions border :column="1">
-                                <template #title>
-                                    <el-tag
-                                        v-for="label in entityInfo.labels" :key="label"
-                                        effect="dark"
-                                        class="mx-1" size="large" :color="graph.colorMap[label].selectedStroke" round
+                            <el-form :model="entityInfo">
+                                <el-descriptions border :column="1">
+                                    <template #title>
+                                        <el-form-item>
+                                            <el-space wrap>
+                                                <el-tag
+                                                    v-for="label in entityInfo.labels" :key="label"
+                                                    effect="dark"
+                                                    class="mx-1" size="large" :color="graph.colorMap[label].selectedStroke" round
+                                                    closable
+                                                    @close="entitiyInfoDeleteLabel(label)"
+                                                >
+                                                    {{ label }}
+                                                </el-tag>
+                                                <el-select
+                                                    v-if="inputVisible"
+                                                    ref="InputRef"
+                                                    v-model="inputValue"
+                                                    class="ml-1 w-20"
+                                                    size="default"
+                                                    @change="handleInputConfirm"
+                                                >
+                                                    <el-option
+                                                        v-for="label in labels.list" :key="label.name" :label="label.name"
+                                                        :value="label.name"
+                                                    />
+                                                </el-select>
+                                                <el-button v-else round class="button-new-tag ml-1" size="default" @click="showInput">
+                                                    <template #icon>
+                                                        <el-icon>
+                                                            <svg-icon name="add" />
+                                                        </el-icon>
+                                                    </template>
+                                                </el-button>
+                                            </el-space>
+                                        </el-form-item>
+                                    </template>
+                                    <el-descriptions-item
+                                        v-for="attribute in entityInfo.infoList"
+                                        :key="attribute.name"
+                                        :label="attribute.nameZh + '（' + attribute.name + '）'"
+                                        align="center"
                                     >
-                                        {{ label }}
-                                    </el-tag>
-                                </template>
-                                <el-descriptions-item
-                                    v-for="attribute in entityInfo.infoList"
-                                    :key="attribute.name"
-                                    :label="attribute.nameZh + '（' + attribute.name + '）'"
-                                    align="center"
-                                >
-                                    {{ entityInfo.info[attribute.name] }}
-                                </el-descriptions-item>
-                                <el-descriptions-item label="入度" align="center">
-                                    {{ entityInfo.inOut[0] }}
-                                </el-descriptions-item>
-                                <el-descriptions-item label="出度" align="center">
-                                    {{ entityInfo.inOut[1] }}
-                                </el-descriptions-item>
-                            </el-descriptions>
+                                        <el-form-item>
+                                            <el-input v-model="entityInfo.info[attribute.name]" autosize type="textarea" />
+                                        </el-form-item>
+                                    </el-descriptions-item>
+                                    <el-descriptions-item label="入度" align="center">
+                                        {{ entityInfo.inOut[0] }}
+                                    </el-descriptions-item>
+                                    <el-descriptions-item label="出度" align="center">
+                                        {{ entityInfo.inOut[1] }}
+                                    </el-descriptions-item>
+                                </el-descriptions>
+                                <el-divider />
+                                <el-space>
+                                    <el-button type="primary" @click="saveEntityInfo">
+                                        保存
+                                    </el-button>
+                                    <el-button @click="deleteEntity">
+                                        删除
+                                    </el-button>
+                                </el-space>
+                            </el-form>
                         </el-card>
                     </el-aside>
                     <el-aside v-else-if="aside.cur === '关系信息'">
@@ -507,7 +569,7 @@ import {
     getLabelAttributeMap,
     getRelations, getRelationsOfEntities, getRelationsQueryEntities, getSubgraphs,
     getTypeAttributeMap,
-    getSelfOptionQueryEntities
+    getSelfOptionQueryEntities, updateEntity, removeEntity, createEntity
 } from '@/api/graph'
 import G6, { Algorithm } from '@antv/g6'
 import { getLabels, getOntologyColorMap, getTypes } from '@/api/project'
@@ -912,13 +974,13 @@ export default defineComponent({
             for (let i = 1; i < queryList.length; i++) {
                 query.relation.r += ' and ' + queryList[i]
             }
-            console.log(query.relation.r)
+            // console.log(query.relation.r)
             pagination.page = 1
             pageChange()
         }
 
         const selfOptionQuery = () => {
-            console.log(query)
+            // console.log(query)
             query.entity = ''
             query.relation.r = ''
             query.path.len = ''
@@ -980,8 +1042,8 @@ export default defineComponent({
             } else if (pathQueryForm.operators === '>=' && pathQueryForm.values.length !== 0) {
                 query.path.len = '*' + pathQueryForm.values + '..'
             }
-            console.log(query.path.len)
-            console.log(query.relation.r)
+            // console.log(query.path.len)
+            // console.log(query.relation.r)
             pagination.page = 1
             pageChange()
         }
@@ -1084,6 +1146,13 @@ export default defineComponent({
             }
         }
 
+        // function sleep(delay) {
+        //     const start = (new Date()).getTime()
+        //     while ((new Date()).getTime() - start < delay) {
+        //         continue
+        //     }
+        // }
+
         // 子图相关-end-******************************************
 
         onMounted(() => {
@@ -1143,13 +1212,6 @@ export default defineComponent({
                 }
             })
 
-            // function sleep(delay) {
-            //     const start = (new Date()).getTime()
-            //     while ((new Date()).getTime() - start < delay) {
-            //         continue
-            //     }
-            // }
-
             g6Config.plugins = [minimap, menu]
 
             g6Graph.value = new G6.Graph(g6Config)
@@ -1190,7 +1252,6 @@ export default defineComponent({
                         for (const key in res.data) {
                             graph.colorMap[key] = colorSets[i++]
                         }
-                        console.log(graph.colorMap)
                         setG6Data(g6Data)
                         g6Graph.value.read(g6Data)
                     })
@@ -1224,6 +1285,7 @@ export default defineComponent({
             // 点击节点
             g6Graph.value.on('node:click', e => {
                 aside.cur = '实体信息'
+                newEntityFlag.value = false
                 // 先将所有当前是 click 状态的节点置为非 click 状态
                 const clickNodes = g6Graph.value.findAllByState('node', 'selected')
                 clickNodes.forEach(cn => {
@@ -1236,8 +1298,9 @@ export default defineComponent({
                 entityInfo.labels = entityInfo.info.labels
                 entityInfo.infoList = []
                 entityInfo.labels.forEach(label => {
-                    entityInfo.infoList = [...graph.labelAttributeMap[label]]
+                    entityInfo.infoList.push(...graph.labelAttributeMap[label])
                 })
+                entityInfo.infoList = uniqueFunc(entityInfo.infoList, 'id')
                 // 获取节点的出度和入度
                 getEntityInAndOut(graph.id, entityInfo.info.id).then(res => {
                     entityInfo.inOut = [...res.data]
@@ -1298,6 +1361,71 @@ export default defineComponent({
             model.fx = e.x
             model.fy = e.y
         }
+        // 实体信息编辑
+        // 删除实体的标签
+        const entitiyInfoDeleteLabel = label => {
+            entityInfo.labels = entityInfo.labels.filter(item => item !== label)
+            if (entityInfo.labels.length === 0) {
+                entityInfo.labels.push('Entity')
+            }
+            entityInfo.infoList = []
+            entityInfo.labels.forEach(label => {
+                entityInfo.infoList.push(...graph.labelAttributeMap[label])
+            })
+        }
+        // 新增实体的标签
+        const inputValue = ref('')
+        const inputVisible = ref(false)
+        const showInput = () => {
+            inputVisible.value = true
+        }
+
+        const handleInputConfirm = () => {
+            if (inputValue.value) {
+                if (entityInfo.labels.indexOf(inputValue.value) === -1) {
+                    entityInfo.labels.push(inputValue.value)
+                    entityInfo.infoList = []
+                    entityInfo.labels.forEach(label => {
+                        entityInfo.infoList.push(...graph.labelAttributeMap[label])
+                    })
+                    entityInfo.infoList = uniqueFunc(entityInfo.infoList, 'id')
+                }
+            }
+            inputVisible.value = false
+            inputValue.value = ''
+        }
+        // 提交修改
+        const saveEntityInfo = () => {
+            if (newEntityFlag.value) {
+                createEntity(graph.id, entityInfo).then(() => {
+                    pageChange()
+                })
+            } else {
+                updateEntity(graph.id, entityInfo.info.id, entityInfo).then(() => {
+                    pageChange()
+                })
+            }
+        }
+        // 删除
+        const deleteEntity = () => {
+            removeEntity(graph.id, entityInfo.info.id).then(() => {
+                aside.cur = 'overview'
+                pageChange()
+            })
+        }
+        const newEntityFlag = ref(false)
+        // 新增实体
+        const newEntity = () => {
+            newEntityFlag.value = true
+            aside.cur = '实体信息'
+            entityInfo.labels = ['Entity']
+            entityInfo.infoList = []
+            entityInfo.labels.forEach(label => {
+                entityInfo.infoList.push(...graph.labelAttributeMap[label])
+            })
+            entityInfo.infoList = uniqueFunc(entityInfo.infoList, 'id')
+            entityInfo.info = {}
+        }
         return {
             handleSubgraphAdd,
             SubgraphSelect,
@@ -1321,7 +1449,15 @@ export default defineComponent({
             entityQuery,
             relationQueryTypeChange,
             relationQuery,
-            query
+            query,
+            entitiyInfoDeleteLabel,
+            inputValue,
+            inputVisible,
+            showInput,
+            handleInputConfirm,
+            saveEntityInfo,
+            deleteEntity,
+            newEntity
         }
     }
 })

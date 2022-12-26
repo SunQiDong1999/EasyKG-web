@@ -168,3 +168,23 @@ export const getEntityInAndOut = (id, entityId) => {
         'graph/' + id + '/entities/' + entityId + '/inAndOut'
     )
 }
+
+export const updateEntity = (id, entityId, entityInfo) => {
+    return api.put(
+        'graph/' + id + '/entities/' + entityId,
+        entityInfo
+    )
+}
+
+export const createEntity = (id, entityInfo) => {
+    return api.post(
+        'graph/' + id + '/entities',
+        entityInfo
+    )
+}
+
+export const removeEntity = (id, entityId) => {
+    return api.delete(
+        'graph/' + id + '/entities/' + entityId
+    )
+}
