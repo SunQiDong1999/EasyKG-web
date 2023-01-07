@@ -12,8 +12,9 @@
                         <el-pagination
                             v-model:page-size="pagination.size"
                             v-model:current-page="pagination.page"
-                            layout="prev, pager, next"
+                            layout="sizes, prev, pager, next"
                             :total="pagination.total"
+                            @size-change="sizeChange"
                             @current-change="pageChange"
                         />
                         <el-tooltip
@@ -217,6 +218,59 @@
                                     {{ relationInfo.info[attribute.name] }}
                                 </el-descriptions-item>
                             </el-descriptions>
+                            <el-divider />
+                            <el-collapse accordion>
+                                <el-collapse-item title="源实体" name="source">
+                                    <el-card>
+                                        <el-descriptions border :column="1">
+                                            <template #title>
+                                                <el-space wrap>
+                                                    <el-tag
+                                                        v-for="label in relationInfo.sourceEntityInfo.labels" :key="label"
+                                                        effect="dark"
+                                                        class="mx-1" size="large" :color="graph.colorMap[label].selectedStroke" round
+                                                    >
+                                                        {{ label }}
+                                                    </el-tag>
+                                                </el-space>
+                                            </template>
+                                            <el-descriptions-item
+                                                v-for="attribute in relationInfo.sourceEntityInfo.infoList"
+                                                :key="attribute.name"
+                                                :label="attribute.nameZh + '（' + attribute.name + '）'"
+                                                align="center"
+                                            >
+                                                {{ relationInfo.sourceEntityInfo.info[attribute.name] }}
+                                            </el-descriptions-item>
+                                        </el-descriptions>
+                                    </el-card>
+                                </el-collapse-item>
+                                <el-collapse-item title="目标实体" name="target">
+                                    <el-card>
+                                        <el-descriptions border :column="1">
+                                            <template #title>
+                                                <el-space wrap>
+                                                    <el-tag
+                                                        v-for="label in relationInfo.targetEntityInfo.labels" :key="label"
+                                                        effect="dark"
+                                                        class="mx-1" size="large" :color="graph.colorMap[label].selectedStroke" round
+                                                    >
+                                                        {{ label }}
+                                                    </el-tag>
+                                                </el-space>
+                                            </template>
+                                            <el-descriptions-item
+                                                v-for="attribute in relationInfo.targetEntityInfo.infoList"
+                                                :key="attribute.name"
+                                                :label="attribute.nameZh + '（' + attribute.name + '）'"
+                                                align="center"
+                                            >
+                                                {{ relationInfo.targetEntityInfo.info[attribute.name] }}
+                                            </el-descriptions-item>
+                                        </el-descriptions>
+                                    </el-card>
+                                </el-collapse-item>
+                            </el-collapse>
                         </el-card>
                     </el-aside>
                     <el-aside v-else-if="aside.cur === '实体查询'">
@@ -595,7 +649,7 @@ export default defineComponent({
             cur: 'overview'
         })
         const pagination = reactive({
-            size: 25,
+            size: 30,
             page: 1
         })
         const g6Data = reactive({
@@ -612,8 +666,14 @@ export default defineComponent({
         const relationInfo = reactive({
             type: '',
             infoList: [],
-            info: {}
+            info: {},
+            sourceEntityInfo: {},
+            targetEntityInfo: {}
         })
+
+        const sizeChange = () => {
+            pageChange()
+        }
 
         const pageChange = () => {
             if (query.entity.length === 0 && query.relation.r.length === 0 && query.path.len.length === 0) {
@@ -1185,29 +1245,43 @@ export default defineComponent({
                     if (cal === 'DFS') {
                         // DFS
                         const { depthFirstSearch } = Algorithm
+                        const queue = []
                         depthFirstSearch(g6Data, item._cfg.model.id, {
                             enter: ({ current, previous }) => {
                                 console.log('进入', current, previous)// 开始遍历点的回调
-                                const currentNode = g6Graph.value.findById(current)
-                                g6Graph.value.setItemState(currentNode, 'highlight', true)
+                                queue.push(current)
                             },
                             leave: ({ current, previous }) => {
                                 console.log('离开', current, previous)// 遍历完节点的回调
                             }
                         })
+                        for (let i = 0; i < queue.length; i++) {
+                            setTimeout(() => {
+                                const current = queue[i]
+                                const currentNode = g6Graph.value.findById(current)
+                                g6Graph.value.setItemState(currentNode, 'highlight', true)
+                            }, 500 * i)
+                        }
                     } else if (cal === 'BFS') {
                         // BFS
                         const { breadthFirstSearch } = Algorithm
+                        const queue = []
                         breadthFirstSearch(g6Data, item._cfg.model.id, {
                             enter: ({ current, previous }) => {
                                 console.log('进入', current, previous)// 开始遍历点的回调
-                                const currentNode = g6Graph.value.findById(current)
-                                g6Graph.value.setItemState(currentNode, 'highlight', true)
+                                queue.push(current)
                             },
                             leave: ({ current, previous }) => {
                                 console.log('离开', current, previous)// 遍历完节点的回调
                             }
                         })
+                        for (let i = 0; i < queue.length; i++) {
+                            setTimeout(() => {
+                                const current = queue[i]
+                                const currentNode = g6Graph.value.findById(current)
+                                g6Graph.value.setItemState(currentNode, 'highlight', true)
+                            }, 500 * i)
+                        }
                     }
                 }
             })
@@ -1270,6 +1344,16 @@ export default defineComponent({
                     types.list = [...res.data]
                 })
             })
+            const clearGraphState = () => {
+                const nodes = g6Graph.value.getNodes()
+                const edges = g6Graph.value.getEdges()
+                nodes.forEach(node => {
+                    g6Graph.value.clearItemStates(node, ['highlight', 'selected'])
+                })
+                edges.forEach(edge => {
+                    g6Graph.value.clearItemStates(edge, ['highlight', 'selected'])
+                })
+            }
             // 鼠标进入节点
             g6Graph.value.on('node:mouseenter', e => {
                 const nodeItem = e.item // 获取鼠标进入的节点元素对象
@@ -1284,13 +1368,9 @@ export default defineComponent({
 
             // 点击节点
             g6Graph.value.on('node:click', e => {
+                clearGraphState()
                 aside.cur = '实体信息'
                 newEntityFlag.value = false
-                // 先将所有当前是 click 状态的节点置为非 click 状态
-                const clickNodes = g6Graph.value.findAllByState('node', 'selected')
-                clickNodes.forEach(cn => {
-                    g6Graph.value.setItemState(cn, 'selected', false)
-                })
                 const nodeItem = e.item // 获取被点击的节点元素对象
                 g6Graph.value.setItemState(nodeItem, 'selected', true) // 设置当前节点的 click 状态为 true
                 // 展示实体信息
@@ -1309,19 +1389,33 @@ export default defineComponent({
 
             // 点击边
             g6Graph.value.on('edge:click', e => {
+                clearGraphState()
                 aside.cur = '关系信息'
-                // 先将所有当前是 click 状态的边置为非 click 状态
-                const clickEdges = g6Graph.value.findAllByState('edge', 'selected')
-                clickEdges.forEach(ce => {
-                    g6Graph.value.setItemState(ce, 'selected', false)
-                })
                 const edgeItem = e.item // 获取被点击的边元素对象
                 g6Graph.value.setItemState(edgeItem, 'selected', true) // 设置当前边的 click 状态为 true
+                console.log(edgeItem)
                 // 展示关系信息
                 relationInfo.info = edgeItem._cfg.model
                 relationInfo.type = relationInfo.info.label
                 relationInfo.infoList = []
                 relationInfo.infoList = [...graph.typeAttributeMap[relationInfo.type]].slice(1)
+                // 填充关系两端的实体信息
+                // 源实体信息
+                relationInfo.sourceEntityInfo.info = edgeItem._cfg.sourceNode._cfg.model
+                relationInfo.sourceEntityInfo.labels = relationInfo.sourceEntityInfo.info.labels
+                relationInfo.sourceEntityInfo.infoList = []
+                relationInfo.sourceEntityInfo.labels.forEach(label => {
+                    relationInfo.sourceEntityInfo.infoList.push(...graph.labelAttributeMap[label])
+                })
+                relationInfo.sourceEntityInfo.infoList = uniqueFunc(relationInfo.sourceEntityInfo.infoList, 'id')
+                // 目标实体信息
+                relationInfo.targetEntityInfo.info = edgeItem._cfg.targetNode._cfg.model
+                relationInfo.targetEntityInfo.labels = relationInfo.targetEntityInfo.info.labels
+                relationInfo.targetEntityInfo.infoList = []
+                relationInfo.targetEntityInfo.labels.forEach(label => {
+                    relationInfo.targetEntityInfo.infoList.push(...graph.labelAttributeMap[label])
+                })
+                relationInfo.targetEntityInfo.infoList = uniqueFunc(relationInfo.targetEntityInfo.infoList, 'id')
             })
 
             // 双击节点
@@ -1438,6 +1532,7 @@ export default defineComponent({
             pagination,
             entityInfo,
             relationInfo,
+            sizeChange,
             pageChange,
             labels,
             types,
