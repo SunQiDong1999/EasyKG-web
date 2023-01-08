@@ -163,6 +163,16 @@ export const getEntityNeighbors = (id, entityId) => {
     )
 }
 
+export const getEntityDegreeNeighbors = (id, entityId, degree) => {
+    return api.get(
+        'graph/' + id + '/entities/' + entityId + '/neighborsby', {
+            params: {
+                degree: degree
+            }
+        }
+    )
+}
+
 export const getEntityInAndOut = (id, entityId) => {
     return api.get(
         'graph/' + id + '/entities/' + entityId + '/inAndOut'

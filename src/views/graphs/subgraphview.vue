@@ -531,7 +531,7 @@ export default defineComponent({
                 relationInfo.info = edgeItem._cfg.model
                 relationInfo.type = relationInfo.info.type
                 relationInfo.infoList = []
-                relationInfo.infoList = [...graph.typeAttributeMap[relationInfo.type]].slice(1)
+                relationInfo.infoList = [...graph.typeAttributeMap[relationInfo.type]]
             })
 
             // 双击节点

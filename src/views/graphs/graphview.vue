@@ -611,6 +611,19 @@
                 </el-container>
             </el-container>
         </page-main>
+        <el-dialog
+            v-model="expandDialog.visible"
+        >
+            <el-form>
+                <el-form-item label="展开度数">
+                    <el-input v-model="expandDialog.degree" />
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="expandEntityDegree">确认</el-button>
+                    <el-button @click="expandDialog.visible = false">取消</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
     </div>
 </template>
 
@@ -623,7 +636,7 @@ import {
     getLabelAttributeMap,
     getRelations, getRelationsOfEntities, getRelationsQueryEntities, getSubgraphs,
     getTypeAttributeMap,
-    getSelfOptionQueryEntities, updateEntity, removeEntity, createEntity
+    getSelfOptionQueryEntities, updateEntity, removeEntity, createEntity, getEntityDegreeNeighbors
 } from '@/api/graph'
 import G6, { Algorithm } from '@antv/g6'
 import { getLabels, getOntologyColorMap, getTypes } from '@/api/project'
@@ -728,10 +741,11 @@ export default defineComponent({
             animate: true, // Boolean，可选，全局变化时否使用动画过渡
             modes: {
                 default: [
+                    'click-select',
                     'drag-canvas',
                     'zoom-canvas',
                     'drag-node'
-                ] // 允许拖拽画布、放缩画布、拖拽节点
+                ] // 允许拖拽画布、放缩画布、拖拽节点、
             },
             layout: {
                 type: 'force',
@@ -834,7 +848,6 @@ export default defineComponent({
                 node.label = fittingString(node.label, 50, 12)
             })
             g6Data.edges.forEach(edge => {
-                delete edge.id
                 edge.style = {
                     stroke: graph.colorMap[edge.label].selectedStroke
                 }
@@ -1235,7 +1248,9 @@ export default defineComponent({
                     outDiv.style.width = '180px'
                     outDiv.innerHTML = '<el-menu>' +
                         '<el-menu-item index="DFS">深度优先搜索</el-menu-item> <br>' +
-                        '<el-menu-item index="BFS">广度优先搜索</el-menu-item>' +
+                        '<el-menu-item index="BFS">广度优先搜索</el-menu-item> <br>' +
+                        '<el-menu-item index="shortestPath">最短路径</el-menu-item> <br>' +
+                        '<el-menu-item index="expand">展开</el-menu-item> <br>' +
                         '</el-menu>'
                     return outDiv
                 },
@@ -1282,6 +1297,43 @@ export default defineComponent({
                                 g6Graph.value.setItemState(currentNode, 'highlight', true)
                             }, 500 * i)
                         }
+                    } else if (cal === 'shortestPath') {
+                        const selectedNodes = g6Graph.value.findAllByState('node', 'selected')
+                        if (selectedNodes.length !== 2) {
+                            alert('请选择有且仅有两个节点！')
+                            return
+                        }
+                        clearGraphState()
+                        const { findShortestPath } = G6.Algorithm
+                        // path 为其中一条最短路径，allPath 为所有的最短路径
+                        const { length, path, allPath } = findShortestPath(
+                            g6Data,
+                            selectedNodes[0].getID(),
+                            selectedNodes[1].getID()
+                        )
+                        console.log(length, path, allPath)
+                        const pathNodeMap = {}
+                        path.forEach(id => {
+                            const pathNode = g6Graph.value.findById(id)
+                            pathNode.toFront()
+                            g6Graph.value.setItemState(pathNode, 'highlight', true)
+                            pathNodeMap[id] = true
+                        })
+                        g6Graph.value.getEdges().forEach(edge => {
+                            const edgeModel = edge.getModel()
+                            const source = edgeModel.source
+                            const target = edgeModel.target
+                            const sourceInPathIdx = path.indexOf(source)
+                            const targetInPathIdx = path.indexOf(target)
+                            if (sourceInPathIdx === -1 || targetInPathIdx === -1) return
+                            if (Math.abs(sourceInPathIdx - targetInPathIdx) === 1) {
+                                g6Graph.value.setItemState(edge, 'highlight', true)
+                            }
+                        })
+                    } else if (cal === 'expand') {
+                        console.log('展开')
+                        expandDialog.visible = true
+                        expandDialog.entityId = item._cfg.model.id
                     }
                 }
             })
@@ -1348,12 +1400,13 @@ export default defineComponent({
                 const nodes = g6Graph.value.getNodes()
                 const edges = g6Graph.value.getEdges()
                 nodes.forEach(node => {
-                    g6Graph.value.clearItemStates(node, ['highlight', 'selected'])
+                    g6Graph.value.clearItemStates(node, ['highlight'])
                 })
                 edges.forEach(edge => {
-                    g6Graph.value.clearItemStates(edge, ['highlight', 'selected'])
+                    g6Graph.value.clearItemStates(edge, ['highlight'])
                 })
             }
+
             // 鼠标进入节点
             g6Graph.value.on('node:mouseenter', e => {
                 const nodeItem = e.item // 获取鼠标进入的节点元素对象
@@ -1398,7 +1451,7 @@ export default defineComponent({
                 relationInfo.info = edgeItem._cfg.model
                 relationInfo.type = relationInfo.info.label
                 relationInfo.infoList = []
-                relationInfo.infoList = [...graph.typeAttributeMap[relationInfo.type]].slice(1)
+                relationInfo.infoList = [...graph.typeAttributeMap[relationInfo.type]]
                 // 填充关系两端的实体信息
                 // 源实体信息
                 relationInfo.sourceEntityInfo.info = edgeItem._cfg.sourceNode._cfg.model
@@ -1448,6 +1501,15 @@ export default defineComponent({
             g6Graph.value.on('node:dragend', e => {
                 e.item.get('model').fx = null
                 e.item.get('model').fy = null
+            })
+            // 选中集合改变
+            g6Graph.value.on('nodeselectchange', () => {
+                // // 当前操作的 item
+                // console.log(e.target)
+                // // 当前操作后，所有被选中的 items 集合
+                // console.log(e.selectedItems)
+                // // 当前操作时选中(true)还是取消选中(false)
+                // console.log(e.select)
             })
         })
         const refreshDragedNodePosition = e => {
@@ -1520,6 +1582,20 @@ export default defineComponent({
             entityInfo.infoList = uniqueFunc(entityInfo.infoList, 'id')
             entityInfo.info = {}
         }
+        const expandDialog = reactive({
+            visible: false
+        })
+        const expandEntityDegree = () => {
+            getEntityDegreeNeighbors(graphId, expandDialog.entityId, expandDialog.degree).then(res => {
+                g6Data.nodes = uniqueFunc(g6Data.nodes.concat(res.data), 'id')
+                getRelationsOfEntities(graphId, g6Data.nodes).then(res => {
+                    g6Data.edges = res.data
+                    setG6Data(g6Data)
+                    g6Graph.value.render() // 读取 Step 2 中的数据源到图上
+                    expandDialog.visible = false
+                })
+            })
+        }
         return {
             handleSubgraphAdd,
             SubgraphSelect,
@@ -1552,7 +1628,9 @@ export default defineComponent({
             handleInputConfirm,
             saveEntityInfo,
             deleteEntity,
-            newEntity
+            newEntity,
+            expandDialog,
+            expandEntityDegree
         }
     }
 })
