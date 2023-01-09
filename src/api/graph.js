@@ -71,6 +71,12 @@ export const getTypeTableData = (id, type, size, page) => {
     )
 }
 
+export const deleteSubGraphById = (graphId, id) => {
+    return api.delete(
+        'graph/' + graphId + '/subgraph/' + id
+    )
+}
+
 export const getEntities = (id, size, page) => {
     return api.get(
         'graph/' + id + '/entities', {
@@ -95,14 +101,16 @@ export const getEntitiesQuery = (id, label, size, page, query) => {
     )
 }
 
-export const getRelationsQuery = (id, type, size, page, query) => {
+export const getRelationsQuery = (id, type, size, page, query, sourceLabel, targetLabel) => {
     return api.get(
         'graph/' + id + '/relations-query', {
             params: {
                 type: type,
                 size: size,
                 page: page,
-                query: query
+                query: query,
+                sourceLabel: sourceLabel,
+                targetLabel: targetLabel
             }
         }
     )

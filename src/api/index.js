@@ -30,7 +30,10 @@ api.interceptors.request.use(
          */
         if (userStore.isLogin) {
             request.headers['Token'] = userStore.token
+            request.headers['Access-Control-Allow-Origin'] = '*'
         }
+        // res.writeHead(200, {'Content-type': 'text/plain;charset=UTF8', 'Access-Control-Allow-Origin': '*'})
+
         // 是否将 POST 请求参数进行字符串化处理
         // if (request.method === 'post') {
         //     request.data = qs.stringify(request.data, {

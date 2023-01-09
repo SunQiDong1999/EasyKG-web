@@ -182,6 +182,15 @@
                                     </el-icon>
                                 </template>
                             </el-button>
+                            <el-tooltip content="删除" effect="light" :hide-after="0">
+                                <el-button link @click="deleteSubGraph(scope.row.graphId, scope.row.id)">
+                                    <template #icon>
+                                        <el-icon @click="scope">
+                                            <svg-icon name="delete" />
+                                        </el-icon>
+                                    </template>
+                                </el-button>
+                            </el-tooltip>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -210,7 +219,7 @@ import { defineComponent } from 'vue'
 import { onMounted, reactive } from 'vue'
 import { createGraph, getGraphs, getProjectById, deleteGraphById } from '@/api/project'
 import { ElMessage } from 'element-plus'
-import { uploadGraphData, createSubGraph, getSubgraphs } from '@/api/graph'
+import { uploadGraphData, createSubGraph, getSubgraphs, deleteSubGraphById } from '@/api/graph'
 import { useRouter } from 'vue-router/dist/vue-router'
 
 export default defineComponent({
@@ -350,6 +359,19 @@ export default defineComponent({
             })
         }
 
+        // 删除子图
+        const deleteSubGraph = (graphId, id) => {
+            deleteSubGraphById(graphId, id).then(() => {
+                getSubgraphs(graphId).then(res => {
+                    subGraphs.list = res.data
+                })
+                getGraphs(project.id).then(res => {
+                    graphs.list = res.data
+                })
+            })
+
+        }
+
         // 上传数据
         const uploadDialog = reactive({
             visible: false,
@@ -467,7 +489,8 @@ export default defineComponent({
             uploadSuccess,
             toTableview,
             toGraphview,
-            tosubgraphview
+            tosubgraphview,
+            deleteSubGraph
         }
     }
 })
