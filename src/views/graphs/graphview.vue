@@ -12,8 +12,9 @@
                         <el-pagination
                             v-model:page-size="pagination.size"
                             v-model:current-page="pagination.page"
-                            layout="prev, pager, next"
+                            layout="sizes, prev, pager, next"
                             :total="pagination.total"
+                            @size-change="sizeChange"
                             @current-change="pageChange"
                         />
                         <el-tooltip
@@ -43,6 +44,29 @@
                                     <br>
                                     <el-button text @click="aside.cur='自定义查询'">
                                         自定义查询
+                                    </el-button>
+                                </div>
+                            </template>
+                        </el-tooltip>
+                        <el-tooltip
+                            placement="bottom-start"
+                            trigger="hover"
+                            :show-arrow="false"
+                            effect="light"
+                        >
+                            <template #default>
+                                <el-button link>
+                                    <template #icon>
+                                        <el-icon>
+                                            <svg-icon name="add" />
+                                        </el-icon>
+                                    </template>
+                                </el-button>
+                            </template>
+                            <template #content>
+                                <div style="text-align: center;">
+                                    <el-button text @click="newEntity">
+                                        新增实体
                                     </el-button>
                                 </div>
                             </template>
@@ -95,7 +119,7 @@
                                 </el-descriptions-item>
                                 <el-descriptions-item align="center">
                                     <template #label>
-                                        <span>模型描述</span>
+                                        <span>图谱描述</span>
                                     </template>
                                     <span style="font-size: 30px;">
                                         {{ graph.description }}
@@ -108,31 +132,70 @@
                     </el-aside>
                     <el-aside v-else-if="aside.cur === '实体信息'">
                         <el-card header="实体信息" shadow="never">
-                            <el-descriptions border :column="1">
-                                <template #title>
-                                    <el-tag
-                                        v-for="label in entityInfo.labels" :key="label"
-                                        effect="dark"
-                                        class="mx-1" size="large" :color="graph.colorMap[label].selectedStroke" round
+                            <el-form :model="entityInfo">
+                                <el-descriptions border :column="1">
+                                    <template #title>
+                                        <el-form-item>
+                                            <el-space wrap>
+                                                <el-tag
+                                                    v-for="label in entityInfo.labels" :key="label"
+                                                    effect="dark"
+                                                    class="mx-1" size="large" :color="graph.colorMap[label].selectedStroke" round
+                                                    closable
+                                                    @close="entitiyInfoDeleteLabel(label)"
+                                                >
+                                                    {{ label }}
+                                                </el-tag>
+                                                <el-select
+                                                    v-if="inputVisible"
+                                                    ref="InputRef"
+                                                    v-model="inputValue"
+                                                    class="ml-1 w-20"
+                                                    size="default"
+                                                    @change="handleInputConfirm"
+                                                >
+                                                    <el-option
+                                                        v-for="label in labels.list" :key="label.name" :label="label.name"
+                                                        :value="label.name"
+                                                    />
+                                                </el-select>
+                                                <el-button v-else round class="button-new-tag ml-1" size="default" @click="showInput">
+                                                    <template #icon>
+                                                        <el-icon>
+                                                            <svg-icon name="add" />
+                                                        </el-icon>
+                                                    </template>
+                                                </el-button>
+                                            </el-space>
+                                        </el-form-item>
+                                    </template>
+                                    <el-descriptions-item
+                                        v-for="attribute in entityInfo.infoList"
+                                        :key="attribute.name"
+                                        :label="attribute.nameZh + '（' + attribute.name + '）'"
+                                        align="center"
                                     >
-                                        {{ label }}
-                                    </el-tag>
-                                </template>
-                                <el-descriptions-item
-                                    v-for="attribute in entityInfo.infoList"
-                                    :key="attribute.name"
-                                    :label="attribute.nameZh + '（' + attribute.name + '）'"
-                                    align="center"
-                                >
-                                    {{ entityInfo.info[attribute.name] }}
-                                </el-descriptions-item>
-                                <el-descriptions-item label="入度" align="center">
-                                    {{ entityInfo.inOut[0] }}
-                                </el-descriptions-item>
-                                <el-descriptions-item label="出度" align="center">
-                                    {{ entityInfo.inOut[1] }}
-                                </el-descriptions-item>
-                            </el-descriptions>
+                                        <el-form-item>
+                                            <el-input v-model="entityInfo.info[attribute.name]" autosize type="textarea" />
+                                        </el-form-item>
+                                    </el-descriptions-item>
+                                    <el-descriptions-item label="入度" align="center">
+                                        {{ entityInfo.inOut[0] }}
+                                    </el-descriptions-item>
+                                    <el-descriptions-item label="出度" align="center">
+                                        {{ entityInfo.inOut[1] }}
+                                    </el-descriptions-item>
+                                </el-descriptions>
+                                <el-divider />
+                                <el-space>
+                                    <el-button type="primary" @click="saveEntityInfo">
+                                        保存
+                                    </el-button>
+                                    <el-button @click="deleteEntity">
+                                        删除
+                                    </el-button>
+                                </el-space>
+                            </el-form>
                         </el-card>
                     </el-aside>
                     <el-aside v-else-if="aside.cur === '关系信息'">
@@ -155,6 +218,59 @@
                                     {{ relationInfo.info[attribute.name] }}
                                 </el-descriptions-item>
                             </el-descriptions>
+                            <el-divider />
+                            <el-collapse accordion>
+                                <el-collapse-item title="源实体" name="source">
+                                    <el-card>
+                                        <el-descriptions border :column="1">
+                                            <template #title>
+                                                <el-space wrap>
+                                                    <el-tag
+                                                        v-for="label in relationInfo.sourceEntityInfo.labels" :key="label"
+                                                        effect="dark"
+                                                        class="mx-1" size="large" :color="graph.colorMap[label].selectedStroke" round
+                                                    >
+                                                        {{ label }}
+                                                    </el-tag>
+                                                </el-space>
+                                            </template>
+                                            <el-descriptions-item
+                                                v-for="attribute in relationInfo.sourceEntityInfo.infoList"
+                                                :key="attribute.name"
+                                                :label="attribute.nameZh + '（' + attribute.name + '）'"
+                                                align="center"
+                                            >
+                                                {{ relationInfo.sourceEntityInfo.info[attribute.name] }}
+                                            </el-descriptions-item>
+                                        </el-descriptions>
+                                    </el-card>
+                                </el-collapse-item>
+                                <el-collapse-item title="目标实体" name="target">
+                                    <el-card>
+                                        <el-descriptions border :column="1">
+                                            <template #title>
+                                                <el-space wrap>
+                                                    <el-tag
+                                                        v-for="label in relationInfo.targetEntityInfo.labels" :key="label"
+                                                        effect="dark"
+                                                        class="mx-1" size="large" :color="graph.colorMap[label].selectedStroke" round
+                                                    >
+                                                        {{ label }}
+                                                    </el-tag>
+                                                </el-space>
+                                            </template>
+                                            <el-descriptions-item
+                                                v-for="attribute in relationInfo.targetEntityInfo.infoList"
+                                                :key="attribute.name"
+                                                :label="attribute.nameZh + '（' + attribute.name + '）'"
+                                                align="center"
+                                            >
+                                                {{ relationInfo.targetEntityInfo.info[attribute.name] }}
+                                            </el-descriptions-item>
+                                        </el-descriptions>
+                                    </el-card>
+                                </el-collapse-item>
+                            </el-collapse>
                         </el-card>
                     </el-aside>
                     <el-aside v-else-if="aside.cur === '实体查询'">
@@ -495,6 +611,19 @@
                 </el-container>
             </el-container>
         </page-main>
+        <el-dialog
+            v-model="expandDialog.visible"
+        >
+            <el-form>
+                <el-form-item label="展开度数">
+                    <el-input v-model="expandDialog.degree" />
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="expandEntityDegree">确认</el-button>
+                    <el-button @click="expandDialog.visible = false">取消</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
     </div>
 </template>
 
@@ -507,7 +636,7 @@ import {
     getLabelAttributeMap,
     getRelations, getRelationsOfEntities, getRelationsQueryEntities, getSubgraphs,
     getTypeAttributeMap,
-    getSelfOptionQueryEntities
+    getSelfOptionQueryEntities, updateEntity, removeEntity, createEntity, getEntityDegreeNeighbors
 } from '@/api/graph'
 import G6, { Algorithm } from '@antv/g6'
 import { getLabels, getOntologyColorMap, getTypes } from '@/api/project'
@@ -533,7 +662,7 @@ export default defineComponent({
             cur: 'overview'
         })
         const pagination = reactive({
-            size: 25,
+            size: 30,
             page: 1
         })
         const g6Data = reactive({
@@ -550,8 +679,14 @@ export default defineComponent({
         const relationInfo = reactive({
             type: '',
             infoList: [],
-            info: {}
+            info: {},
+            sourceEntityInfo: {},
+            targetEntityInfo: {}
         })
+
+        const sizeChange = () => {
+            pageChange()
+        }
 
         const pageChange = () => {
             if (query.entity.length === 0 && query.relation.r.length === 0 && query.path.len.length === 0) {
@@ -606,10 +741,11 @@ export default defineComponent({
             animate: true, // Boolean，可选，全局变化时否使用动画过渡
             modes: {
                 default: [
+                    'click-select',
                     'drag-canvas',
                     'zoom-canvas',
                     'drag-node'
-                ] // 允许拖拽画布、放缩画布、拖拽节点
+                ] // 允许拖拽画布、放缩画布、拖拽节点、
             },
             layout: {
                 type: 'force',
@@ -712,7 +848,6 @@ export default defineComponent({
                 node.label = fittingString(node.label, 50, 12)
             })
             g6Data.edges.forEach(edge => {
-                delete edge.id
                 edge.style = {
                     stroke: graph.colorMap[edge.label].selectedStroke
                 }
@@ -912,13 +1047,13 @@ export default defineComponent({
             for (let i = 1; i < queryList.length; i++) {
                 query.relation.r += ' and ' + queryList[i]
             }
-            console.log(query.relation.r)
+            // console.log(query.relation.r)
             pagination.page = 1
             pageChange()
         }
 
         const selfOptionQuery = () => {
-            console.log(query)
+            // console.log(query)
             query.entity = ''
             query.relation.r = ''
             query.path.len = ''
@@ -980,8 +1115,8 @@ export default defineComponent({
             } else if (pathQueryForm.operators === '>=' && pathQueryForm.values.length !== 0) {
                 query.path.len = '*' + pathQueryForm.values + '..'
             }
-            console.log(query.path.len)
-            console.log(query.relation.r)
+            // console.log(query.path.len)
+            // console.log(query.relation.r)
             pagination.page = 1
             pageChange()
         }
@@ -1084,6 +1219,13 @@ export default defineComponent({
             }
         }
 
+        // function sleep(delay) {
+        //     const start = (new Date()).getTime()
+        //     while ((new Date()).getTime() - start < delay) {
+        //         continue
+        //     }
+        // }
+
         // 子图相关-end-******************************************
 
         onMounted(() => {
@@ -1106,7 +1248,9 @@ export default defineComponent({
                     outDiv.style.width = '180px'
                     outDiv.innerHTML = '<el-menu>' +
                         '<el-menu-item index="DFS">深度优先搜索</el-menu-item> <br>' +
-                        '<el-menu-item index="BFS">广度优先搜索</el-menu-item>' +
+                        '<el-menu-item index="BFS">广度优先搜索</el-menu-item> <br>' +
+                        '<el-menu-item index="shortestPath">最短路径</el-menu-item> <br>' +
+                        '<el-menu-item index="expand">展开</el-menu-item> <br>' +
                         '</el-menu>'
                     return outDiv
                 },
@@ -1116,39 +1260,83 @@ export default defineComponent({
                     if (cal === 'DFS') {
                         // DFS
                         const { depthFirstSearch } = Algorithm
+                        const queue = []
                         depthFirstSearch(g6Data, item._cfg.model.id, {
                             enter: ({ current, previous }) => {
                                 console.log('进入', current, previous)// 开始遍历点的回调
-                                const currentNode = g6Graph.value.findById(current)
-                                g6Graph.value.setItemState(currentNode, 'highlight', true)
+                                queue.push(current)
                             },
                             leave: ({ current, previous }) => {
                                 console.log('离开', current, previous)// 遍历完节点的回调
                             }
                         })
+                        for (let i = 0; i < queue.length; i++) {
+                            setTimeout(() => {
+                                const current = queue[i]
+                                const currentNode = g6Graph.value.findById(current)
+                                g6Graph.value.setItemState(currentNode, 'highlight', true)
+                            }, 500 * i)
+                        }
                     } else if (cal === 'BFS') {
                         // BFS
                         const { breadthFirstSearch } = Algorithm
+                        const queue = []
                         breadthFirstSearch(g6Data, item._cfg.model.id, {
                             enter: ({ current, previous }) => {
                                 console.log('进入', current, previous)// 开始遍历点的回调
-                                const currentNode = g6Graph.value.findById(current)
-                                g6Graph.value.setItemState(currentNode, 'highlight', true)
+                                queue.push(current)
                             },
                             leave: ({ current, previous }) => {
                                 console.log('离开', current, previous)// 遍历完节点的回调
                             }
                         })
+                        for (let i = 0; i < queue.length; i++) {
+                            setTimeout(() => {
+                                const current = queue[i]
+                                const currentNode = g6Graph.value.findById(current)
+                                g6Graph.value.setItemState(currentNode, 'highlight', true)
+                            }, 500 * i)
+                        }
+                    } else if (cal === 'shortestPath') {
+                        const selectedNodes = g6Graph.value.findAllByState('node', 'selected')
+                        if (selectedNodes.length !== 2) {
+                            alert('请选择有且仅有两个节点！')
+                            return
+                        }
+                        clearGraphState()
+                        const { findShortestPath } = G6.Algorithm
+                        // path 为其中一条最短路径，allPath 为所有的最短路径
+                        const { length, path, allPath } = findShortestPath(
+                            g6Data,
+                            selectedNodes[0].getID(),
+                            selectedNodes[1].getID()
+                        )
+                        console.log(length, path, allPath)
+                        const pathNodeMap = {}
+                        path.forEach(id => {
+                            const pathNode = g6Graph.value.findById(id)
+                            pathNode.toFront()
+                            g6Graph.value.setItemState(pathNode, 'highlight', true)
+                            pathNodeMap[id] = true
+                        })
+                        g6Graph.value.getEdges().forEach(edge => {
+                            const edgeModel = edge.getModel()
+                            const source = edgeModel.source
+                            const target = edgeModel.target
+                            const sourceInPathIdx = path.indexOf(source)
+                            const targetInPathIdx = path.indexOf(target)
+                            if (sourceInPathIdx === -1 || targetInPathIdx === -1) return
+                            if (Math.abs(sourceInPathIdx - targetInPathIdx) === 1) {
+                                g6Graph.value.setItemState(edge, 'highlight', true)
+                            }
+                        })
+                    } else if (cal === 'expand') {
+                        console.log('展开')
+                        expandDialog.visible = true
+                        expandDialog.entityId = item._cfg.model.id
                     }
                 }
             })
-
-            // function sleep(delay) {
-            //     const start = (new Date()).getTime()
-            //     while ((new Date()).getTime() - start < delay) {
-            //         continue
-            //     }
-            // }
 
             g6Config.plugins = [minimap, menu]
 
@@ -1190,7 +1378,6 @@ export default defineComponent({
                         for (const key in res.data) {
                             graph.colorMap[key] = colorSets[i++]
                         }
-                        console.log(graph.colorMap)
                         setG6Data(g6Data)
                         g6Graph.value.read(g6Data)
                     })
@@ -1209,6 +1396,17 @@ export default defineComponent({
                     types.list = [...res.data]
                 })
             })
+            const clearGraphState = () => {
+                const nodes = g6Graph.value.getNodes()
+                const edges = g6Graph.value.getEdges()
+                nodes.forEach(node => {
+                    g6Graph.value.clearItemStates(node, ['highlight'])
+                })
+                edges.forEach(edge => {
+                    g6Graph.value.clearItemStates(edge, ['highlight'])
+                })
+            }
+
             // 鼠标进入节点
             g6Graph.value.on('node:mouseenter', e => {
                 const nodeItem = e.item // 获取鼠标进入的节点元素对象
@@ -1223,12 +1421,9 @@ export default defineComponent({
 
             // 点击节点
             g6Graph.value.on('node:click', e => {
+                clearGraphState()
                 aside.cur = '实体信息'
-                // 先将所有当前是 click 状态的节点置为非 click 状态
-                const clickNodes = g6Graph.value.findAllByState('node', 'selected')
-                clickNodes.forEach(cn => {
-                    g6Graph.value.setItemState(cn, 'selected', false)
-                })
+                newEntityFlag.value = false
                 const nodeItem = e.item // 获取被点击的节点元素对象
                 g6Graph.value.setItemState(nodeItem, 'selected', true) // 设置当前节点的 click 状态为 true
                 // 展示实体信息
@@ -1236,8 +1431,9 @@ export default defineComponent({
                 entityInfo.labels = entityInfo.info.labels
                 entityInfo.infoList = []
                 entityInfo.labels.forEach(label => {
-                    entityInfo.infoList = [...graph.labelAttributeMap[label]]
+                    entityInfo.infoList.push(...graph.labelAttributeMap[label])
                 })
+                entityInfo.infoList = uniqueFunc(entityInfo.infoList, 'id')
                 // 获取节点的出度和入度
                 getEntityInAndOut(graph.id, entityInfo.info.id).then(res => {
                     entityInfo.inOut = [...res.data]
@@ -1246,19 +1442,33 @@ export default defineComponent({
 
             // 点击边
             g6Graph.value.on('edge:click', e => {
+                clearGraphState()
                 aside.cur = '关系信息'
-                // 先将所有当前是 click 状态的边置为非 click 状态
-                const clickEdges = g6Graph.value.findAllByState('edge', 'selected')
-                clickEdges.forEach(ce => {
-                    g6Graph.value.setItemState(ce, 'selected', false)
-                })
                 const edgeItem = e.item // 获取被点击的边元素对象
                 g6Graph.value.setItemState(edgeItem, 'selected', true) // 设置当前边的 click 状态为 true
+                console.log(edgeItem)
                 // 展示关系信息
                 relationInfo.info = edgeItem._cfg.model
                 relationInfo.type = relationInfo.info.label
                 relationInfo.infoList = []
-                relationInfo.infoList = [...graph.typeAttributeMap[relationInfo.type]].slice(1)
+                relationInfo.infoList = [...graph.typeAttributeMap[relationInfo.type]]
+                // 填充关系两端的实体信息
+                // 源实体信息
+                relationInfo.sourceEntityInfo.info = edgeItem._cfg.sourceNode._cfg.model
+                relationInfo.sourceEntityInfo.labels = relationInfo.sourceEntityInfo.info.labels
+                relationInfo.sourceEntityInfo.infoList = []
+                relationInfo.sourceEntityInfo.labels.forEach(label => {
+                    relationInfo.sourceEntityInfo.infoList.push(...graph.labelAttributeMap[label])
+                })
+                relationInfo.sourceEntityInfo.infoList = uniqueFunc(relationInfo.sourceEntityInfo.infoList, 'id')
+                // 目标实体信息
+                relationInfo.targetEntityInfo.info = edgeItem._cfg.targetNode._cfg.model
+                relationInfo.targetEntityInfo.labels = relationInfo.targetEntityInfo.info.labels
+                relationInfo.targetEntityInfo.infoList = []
+                relationInfo.targetEntityInfo.labels.forEach(label => {
+                    relationInfo.targetEntityInfo.infoList.push(...graph.labelAttributeMap[label])
+                })
+                relationInfo.targetEntityInfo.infoList = uniqueFunc(relationInfo.targetEntityInfo.infoList, 'id')
             })
 
             // 双击节点
@@ -1292,11 +1502,99 @@ export default defineComponent({
                 e.item.get('model').fx = null
                 e.item.get('model').fy = null
             })
+            // 选中集合改变
+            g6Graph.value.on('nodeselectchange', () => {
+                // // 当前操作的 item
+                // console.log(e.target)
+                // // 当前操作后，所有被选中的 items 集合
+                // console.log(e.selectedItems)
+                // // 当前操作时选中(true)还是取消选中(false)
+                // console.log(e.select)
+            })
         })
         const refreshDragedNodePosition = e => {
             const model = e.item.get('model')
             model.fx = e.x
             model.fy = e.y
+        }
+        // 实体信息编辑
+        // 删除实体的标签
+        const entitiyInfoDeleteLabel = label => {
+            entityInfo.labels = entityInfo.labels.filter(item => item !== label)
+            if (entityInfo.labels.length === 0) {
+                entityInfo.labels.push('Entity')
+            }
+            entityInfo.infoList = []
+            entityInfo.labels.forEach(label => {
+                entityInfo.infoList.push(...graph.labelAttributeMap[label])
+            })
+        }
+        // 新增实体的标签
+        const inputValue = ref('')
+        const inputVisible = ref(false)
+        const showInput = () => {
+            inputVisible.value = true
+        }
+
+        const handleInputConfirm = () => {
+            if (inputValue.value) {
+                if (entityInfo.labels.indexOf(inputValue.value) === -1) {
+                    entityInfo.labels.push(inputValue.value)
+                    entityInfo.infoList = []
+                    entityInfo.labels.forEach(label => {
+                        entityInfo.infoList.push(...graph.labelAttributeMap[label])
+                    })
+                    entityInfo.infoList = uniqueFunc(entityInfo.infoList, 'id')
+                }
+            }
+            inputVisible.value = false
+            inputValue.value = ''
+        }
+        // 提交修改
+        const saveEntityInfo = () => {
+            if (newEntityFlag.value) {
+                createEntity(graph.id, entityInfo).then(() => {
+                    pageChange()
+                })
+            } else {
+                updateEntity(graph.id, entityInfo.info.id, entityInfo).then(() => {
+                    pageChange()
+                })
+            }
+        }
+        // 删除
+        const deleteEntity = () => {
+            removeEntity(graph.id, entityInfo.info.id).then(() => {
+                aside.cur = 'overview'
+                pageChange()
+            })
+        }
+        const newEntityFlag = ref(false)
+        // 新增实体
+        const newEntity = () => {
+            newEntityFlag.value = true
+            aside.cur = '实体信息'
+            entityInfo.labels = ['Entity']
+            entityInfo.infoList = []
+            entityInfo.labels.forEach(label => {
+                entityInfo.infoList.push(...graph.labelAttributeMap[label])
+            })
+            entityInfo.infoList = uniqueFunc(entityInfo.infoList, 'id')
+            entityInfo.info = {}
+        }
+        const expandDialog = reactive({
+            visible: false
+        })
+        const expandEntityDegree = () => {
+            getEntityDegreeNeighbors(graphId, expandDialog.entityId, expandDialog.degree).then(res => {
+                g6Data.nodes = uniqueFunc(g6Data.nodes.concat(res.data), 'id')
+                getRelationsOfEntities(graphId, g6Data.nodes).then(res => {
+                    g6Data.edges = res.data
+                    setG6Data(g6Data)
+                    g6Graph.value.render() // 读取 Step 2 中的数据源到图上
+                    expandDialog.visible = false
+                })
+            })
         }
         return {
             handleSubgraphAdd,
@@ -1310,6 +1608,7 @@ export default defineComponent({
             pagination,
             entityInfo,
             relationInfo,
+            sizeChange,
             pageChange,
             labels,
             types,
@@ -1321,7 +1620,17 @@ export default defineComponent({
             entityQuery,
             relationQueryTypeChange,
             relationQuery,
-            query
+            query,
+            entitiyInfoDeleteLabel,
+            inputValue,
+            inputVisible,
+            showInput,
+            handleInputConfirm,
+            saveEntityInfo,
+            deleteEntity,
+            newEntity,
+            expandDialog,
+            expandEntityDegree
         }
     }
 })

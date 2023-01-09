@@ -28,13 +28,13 @@
                             </template>
                             新增实体
                         </el-button>
-                        <el-input v-model="search.entity" size="default" placeholder="输入id/名称查找实体" />
-                        <el-button link @click="dialogVisible.dialog1=true">
+                        <el-button round @click="dialogVisible.dialog1=true">
                             <template #icon>
                                 <el-icon>
-                                    <svg-icon name="ep:search" />
+                                    <svg-icon name="search" />
                                 </el-icon>
                             </template>
+                            查询实体
                         </el-button>
                     </el-space>
                     <el-dialog v-model="dialogVisible.dialog1" title="实体查询">
@@ -94,7 +94,7 @@
                 </el-tab-pane>
                 <el-tab-pane label="关系列表" name="relation">
                     <el-space>
-                        <el-select v-model="typeValue.name" class="m-2" placeholder="选择本体类型" @change="elSelectTypeHandle">
+                        <el-select v-model="typeValue.name" class="m-2" placeholder="选择关系类型" @change="elSelectTypeHandle">
                             <el-option
                                 v-for="label in typesOptions.list"
                                 :key="label.id"
@@ -108,15 +108,15 @@
                                     <svg-icon name="add" />
                                 </el-icon>
                             </template>
-                            新增实体
+                            新增关系
                         </el-button>
-                        <el-input v-model="search.relation" size="default" placeholder="输入id/名称查找实体" />
-                        <el-button link @click="dialogVisible.dialog2=true">
+                        <el-button round @click="dialogVisible.dialog2=true">
                             <template #icon>
                                 <el-icon>
-                                    <svg-icon name="ep:search" />
+                                    <svg-icon name="search" />
                                 </el-icon>
                             </template>
+                            查询关系
                         </el-button>
                     </el-space>
                     <el-dialog v-model="dialogVisible.dialog2" title="关系查询">
@@ -275,16 +275,18 @@
                     v-if="activeName==='entity'"
                     v-model:page-size="dataList.pagination.size"
                     v-model:current-page="dataList.pagination.page"
-                    layout="prev, pager, next"
+                    layout="sizes, prev, pager, next"
                     :total="dataList.pagination.total"
+                    @size-change="pageChange"
                     @current-change="pageChange"
                 />
                 <el-pagination
                     v-if="activeName==='relation'"
                     v-model:page-size="dataList.relationPagination.size"
                     v-model:current-page="dataList.relationPagination.page"
-                    layout="prev, pager, next"
+                    layout="sizes, prev, pager, next"
                     :total="dataList.relationPagination.total"
+                    @size-change="pageChange"
                     @current-change="pageChange"
                 />
             </el-space>

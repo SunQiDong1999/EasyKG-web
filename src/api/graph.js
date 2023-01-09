@@ -171,8 +171,38 @@ export const getEntityNeighbors = (id, entityId) => {
     )
 }
 
+export const getEntityDegreeNeighbors = (id, entityId, degree) => {
+    return api.get(
+        'graph/' + id + '/entities/' + entityId + '/neighborsby', {
+            params: {
+                degree: degree
+            }
+        }
+    )
+}
+
 export const getEntityInAndOut = (id, entityId) => {
     return api.get(
         'graph/' + id + '/entities/' + entityId + '/inAndOut'
+    )
+}
+
+export const updateEntity = (id, entityId, entityInfo) => {
+    return api.put(
+        'graph/' + id + '/entities/' + entityId,
+        entityInfo
+    )
+}
+
+export const createEntity = (id, entityInfo) => {
+    return api.post(
+        'graph/' + id + '/entities',
+        entityInfo
+    )
+}
+
+export const removeEntity = (id, entityId) => {
+    return api.delete(
+        'graph/' + id + '/entities/' + entityId
     )
 }
