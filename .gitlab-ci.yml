@@ -30,11 +30,10 @@ build-job:       # This job runs in the build stage, which runs first.
     - node
   script:
     - echo "Compiling the code..."
-    - echo $USER
-    - pwd
+    - cd ~
+    - source .bashrc
     - echo $NVM_DIR
     - nvm
-    - pnpm install
     - echo "Compile complete."
   only:
      - master
