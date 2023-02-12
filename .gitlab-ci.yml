@@ -20,14 +20,16 @@ stages:          # List of stages for jobs, and their order of execution
   - build
   - deploy
 
+cache:
+  paths:
+    - node_modules/
+
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
   tags:
     - node
   script:
     - echo "Compiling the code..."
-    - su root
-    - gitlabrunner
     - pnpm install
     - echo "Compile complete."
   only:
