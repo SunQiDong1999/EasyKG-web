@@ -24,11 +24,10 @@ build-job:       # This job runs in the build stage, which runs first.
   stage: build
   tags:
     - node
-  before_script:
-    - pwd
   script:
     - echo "Compiling the code..."
     - pwd
+    - echo $USER
     - pnpm install
     - echo "Compile complete."
   only:
