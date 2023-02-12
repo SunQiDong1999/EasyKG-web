@@ -32,8 +32,8 @@ build-job:       # This job runs in the build stage, which runs first.
     - echo "Compiling the code..."
     - cd ~
     - source .bashrc
-    - echo $NVM_DIR
-    - nvm
+    - cd ${CI_PROJECT_DIR}
+    - pnpm install
     - echo "Compile complete."
   only:
      - master
