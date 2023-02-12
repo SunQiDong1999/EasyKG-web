@@ -23,14 +23,8 @@ stages:          # List of stages for jobs, and their order of execution
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
   tags:
-    - docker
     - node
   before_script:
-    - npm config set proxy null
-    - npm config set https-proxy 
-    - npm config set registry http://registry.cnpmjs.org/
-    - npm install -g cnpm --registry=https://registry.npm.taobao.org 
-    - cnpm install pnpm -g
     - pnpm config set store-dir .pnpm-store
   script:
     - echo "Compiling the code..."
@@ -51,7 +45,6 @@ build-job:       # This job runs in the build stage, which runs first.
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   tags:
-    - docker
     - node
   script:
     - echo "Deploying application..."
