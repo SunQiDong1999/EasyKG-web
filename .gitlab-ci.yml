@@ -32,7 +32,7 @@ build-job:       # This job runs in the build stage, which runs first.
     - echo "Compiling the code..."
     - echo $USER
     - pwd
-    - echo $SHELL
+    - echo $NVM_DIR
     - nvm
     - pnpm install
     - echo "Compile complete."
