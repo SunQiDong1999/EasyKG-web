@@ -30,9 +30,9 @@ build-job:       # This job runs in the build stage, which runs first.
     - node
   script:
     - echo "Compiling the code..."
-    - cd ~
-    - source .bashrc
-    - cd ${CI_PROJECT_DIR}
+    # - cd ~
+    # - source .bashrc
+    # - cd ${CI_PROJECT_DIR}
     - pnpm install
     - echo "Compile complete."
   only:
@@ -47,8 +47,8 @@ deploy-job:      # This job runs in the deploy stage.
     - node
   script:
     - echo "Deploying application..."
-    - cd ~
-    - source .bashrc
-    - cd ${CI_PROJECT_DIR}
+    # - cd ~
+    # - source .bashrc
+    # - cd ${CI_PROJECT_DIR}
     - pnpm run dev
     - echo "Application successfully deployed."
