@@ -49,7 +49,6 @@ deploy-job:      # This job runs in the deploy stage.
     - echo "Deploying application..."
     - source ~/.nvm/nvm.sh
     - source ~/.bashrc
-    - cd ${CI_PROJECT_DIR}
     - rm -rf /home/gitlab-runner/web/*
-    - cp -rf ${CI_PROJECT_DIR}/dist/* /home/gitlab-runner/web/*
+    - cp -rf ${CI_PROJECT_DIR}/dist/* /home/gitlab-runner/web/
     - echo "Application successfully deployed."
