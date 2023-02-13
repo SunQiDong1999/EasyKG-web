@@ -31,8 +31,11 @@ build-job:       # This job runs in the build stage, which runs first.
   script:
     - echo "Compiling the code..."
     - cd ~
+    - pwd
+    - echo $USER
     - source .bashrc
     - cd ${CI_PROJECT_DIR}
+    - pwd
     - nvm
     - pnpm install
     - echo "Compile complete."
