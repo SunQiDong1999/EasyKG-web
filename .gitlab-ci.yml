@@ -33,7 +33,7 @@ build-job:       # This job runs in the build stage, which runs first.
     - source ~/.nvm/nvm.sh
     - source ~/.bashrc
     - nvm list
-    - pnpm install
+    - pnpm run build
     - echo "Compile complete."
   only:
      - master
@@ -50,5 +50,6 @@ deploy-job:      # This job runs in the deploy stage.
     - source ~/.nvm/nvm.sh
     - source ~/.bashrc
     - cd ${CI_PROJECT_DIR}
-    - pnpm run dev
+    - rm -rf /home/gitlab-runner/web/*
+    - cp -rf ${CI_PROJECT_DIR}/dist/* /home/gitlab-runner/web/*
     - echo "Application successfully deployed."
