@@ -14,6 +14,10 @@ app.use(router)
 import JsonViewer from 'vue-json-viewer'
 // Import JsonViewer as a Vue.js plugin
 app.use(JsonViewer)
+
+import CodeDiff from 'v-code-diff'
+
+app.use(CodeDiff)
 /* importElementPlusPlaceholder */
 
 // 自定义指令

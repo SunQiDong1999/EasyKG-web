@@ -62,7 +62,7 @@
                                 </el-button>
                             </el-tooltip>
                             <el-tooltip content="导出数据" effect="light" :hide-after="0">
-                                <el-button link>
+                                <el-button link @click="downloadGraphClick(scope.row.id)">
                                     <template #icon>
                                         <el-icon @click="scope">
                                             <svg-icon name="download" />
@@ -207,7 +207,14 @@
                 :files="uploadDialog.files"
                 action="#"
                 @on-success="uploadSuccess"
+                @on-change="uploadChange"
                 @http-request="upload"
+            />
+            <code-diff
+                v-if="uploadDialog.diffVisible"
+                :old-string="uploadDialog.oldStr"
+                :new-string="uploadDialog.newStr"
+                output-format="side-by-side"
             />
         </el-dialog>
     </div>
@@ -219,8 +226,16 @@ import { defineComponent } from 'vue'
 import { onMounted, reactive } from 'vue'
 import { createGraph, getGraphs, getProjectById, deleteGraphById } from '@/api/project'
 import { ElMessage } from 'element-plus'
-import { uploadGraphData, createSubGraph, getSubgraphs, deleteSubGraphById } from '@/api/graph'
+import {
+    uploadGraphData,
+    createSubGraph,
+    getSubgraphs,
+    deleteSubGraphById,
+    downloadGraph,
+    getGraphData, getGraphAllData
+} from '@/api/graph'
 import { useRouter } from 'vue-router/dist/vue-router'
+import { downloadResult } from '@/api/model'
 
 export default defineComponent({
     name: 'Index',
@@ -377,11 +392,14 @@ export default defineComponent({
             visible: false,
             draggable: false,
             center: true,
-            files: []
+            files: [],
+            diffVisible: false
         })
         const uploadDialogOpen = id => {
             uploadDialog.visible = true
             uploadDialog.graphId = id
+            uploadDialog.oldStr = '111'
+            uploadDialog.newStr = '112'
         }
         const uploadDialogClose = () => {
             console.log('清空')
@@ -407,6 +425,22 @@ export default defineComponent({
             } else {
                 fileList.pop()
                 ElMessage.warning(res.error)
+            }
+        }
+
+        const uploadChange = (file, fileList) => {
+            if (fileList.length === 1) {
+                console.log(file.raw)
+                const reader = new FileReader()
+                reader.readAsText(file.raw)
+                reader.onload = function(e) {
+                    const newStr = e.target.result
+                    uploadDialog.newStr = newStr
+                }
+                getGraphAllData(uploadDialog.graphId).then(res => {
+                    uploadDialog.oldStr = JSON.stringify(res, null, ' ')
+                })
+                uploadDialog.diffVisible = true
             }
         }
 
@@ -446,6 +480,12 @@ export default defineComponent({
                     id: graphId,
                     subgraphId: id
                 }
+            })
+        }
+
+        const downloadGraphClick = graphId => {
+            downloadGraph(graphId).then(res => {
+                console.log(res)
             })
         }
 
@@ -490,7 +530,9 @@ export default defineComponent({
             toTableview,
             toGraphview,
             tosubgraphview,
-            deleteSubGraph
+            deleteSubGraph,
+            downloadGraphClick,
+            uploadChange
         }
     }
 })

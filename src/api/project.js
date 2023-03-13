@@ -93,3 +93,4 @@ export const getSubgraphs = id => {
         'project/' + id + '/subgraphs'
     )
 }
+

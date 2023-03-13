@@ -20,7 +20,7 @@ const props = defineProps({
     },
     size: {
         type: Number,
-        default: 5
+        default: 100
     },
     max: {
         type: Number,
@@ -40,7 +40,7 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits(['on-success', 'http-request'])
+const emit = defineEmits(['on-success', 'http-request', 'on-change'])
 
 function beforeUpload(file) {
     const fileName = file.name.split('.')
@@ -61,6 +61,10 @@ function onExceed() {
 function onSuccess(res, file, fileList) {
     emit('on-success', res, file, fileList)
 }
+
+function onChange(file, fileList) {
+    emit('on-change', file, fileList)
+}
 const uploadRef = ref()
 function submitUpload() {
     uploadRef.value.submit()
@@ -80,6 +84,7 @@ function upload(param) {
         :before-upload="beforeUpload"
         :on-exceed="onExceed"
         :on-success="onSuccess"
+        :on-change="onChange"
         :file-list="files"
         :limit="max"
         :auto-upload="false"
