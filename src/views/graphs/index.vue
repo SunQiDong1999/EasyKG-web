@@ -424,19 +424,20 @@ export default defineComponent({
         }
 
         const uploadChange = (file, fileList) => {
-            if (fileList.length === 1) {
-                console.log(file.raw)
-                const reader = new FileReader()
-                reader.readAsText(file.raw)
-                reader.onload = function(e) {
-                    const newStr = e.target.result
-                    uploadDialog.newStr = newStr
-                }
-                getGraphAllData(uploadDialog.graphId).then(res => {
-                    uploadDialog.oldStr = JSON.stringify(res, null, ' ')
-                })
-                uploadDialog.diffVisible = true
-            }
+            console.log(file, fileList)
+            // if (fileList.length === 1) {
+            //     console.log(file.raw)
+            //     const reader = new FileReader()
+            //     reader.readAsText(file.raw)
+            //     reader.onload = function(e) {
+            //         const newStr = e.target.result
+            //         uploadDialog.newStr = newStr
+            //     }
+            //     getGraphAllData(uploadDialog.graphId).then(res => {
+            //         uploadDialog.oldStr = JSON.stringify(res, null, ' ')
+            //     })
+            //     uploadDialog.diffVisible = true
+            // }
         }
 
         const getGraphList = () => {
