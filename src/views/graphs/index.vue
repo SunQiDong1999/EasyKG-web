@@ -210,12 +210,6 @@
                 @on-change="uploadChange"
                 @http-request="upload"
             />
-            <code-diff
-                v-if="uploadDialog.diffVisible"
-                :old-string="uploadDialog.oldStr"
-                :new-string="uploadDialog.newStr"
-                output-format="side-by-side"
-            />
         </el-dialog>
     </div>
 </template>
@@ -232,10 +226,9 @@ import {
     getSubgraphs,
     deleteSubGraphById,
     downloadGraph,
-    getGraphData, getGraphAllData
+    getGraphAllData
 } from '@/api/graph'
 import { useRouter } from 'vue-router/dist/vue-router'
-import { downloadResult } from '@/api/model'
 
 export default defineComponent({
     name: 'Index',
@@ -393,7 +386,9 @@ export default defineComponent({
             draggable: false,
             center: true,
             files: [],
-            diffVisible: false
+            diffVisible: false,
+            oldStr: 'oldStr',
+            newStr: 'newStr'
         })
         const uploadDialogOpen = id => {
             uploadDialog.visible = true
