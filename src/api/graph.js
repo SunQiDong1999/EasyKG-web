@@ -209,12 +209,12 @@ export const removeEntity = (id, entityId) => {
 
 export const downloadGraph = id => {
     window.open(
-        'http://127.0.0.1:9000/proxy/graph/' + id + '/download'
+        'http://192.168.3.58:9000/proxy/graph/' + id + '/download'
     )
 }
 
 export const getGraphAllData = id => {
     return api.get(
-        'http://127.0.0.1:9000/proxy/graph/' + id + '/download'
+        'http://192.168.3.58:9000/proxy/graph/' + id + '/download'
     )
 }

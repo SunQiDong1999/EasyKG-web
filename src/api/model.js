@@ -33,7 +33,7 @@ export const getResult = id => {
 
 export const downloadResult = id => {
     window.open(
-        'http://127.0.0.1:9000/proxy/model/' + id + '/download'
+        'http://192.168.3.58:9000/proxy/model/' + id + '/download'
     )
 }
 
