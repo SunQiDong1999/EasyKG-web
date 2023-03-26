@@ -739,28 +739,35 @@ export default defineComponent({
         const g6Config = {
             container: 'mountNode', // String | HTMLElement，必须，在 Step 1 中创建的容器 id 或容器本身
             animate: true, // Boolean，可选，全局变化时否使用动画过渡
+            fitCenter: true,
             modes: {
                 default: [
                     'click-select',
-                    'drag-canvas',
-                    'zoom-canvas',
+                    {
+                        type: 'drag-canvas',
+                        enableOptimize: true
+                    },
+                    {
+                        type: 'zoom-canvas',
+                        enableOptimize: true
+                    },
                     'drag-node'
                 ] // 允许拖拽画布、放缩画布、拖拽节点、
             },
             layout: {
-                type: 'force',
+                type: 'force2',
+                animate: true,
+                preset: {
+                    type: 'circular'
+                },
                 linkDistance: 120, // 边长度
-                nodeStrength: 50, // 节点作用力，正数代表节点之间的引力作用，负数代表节点之间的斥力作用
-                edgeStrength: 0.2, // 边的作用力，范围是 0 到 1，默认根据节点的出入度自适应
-                collideStrength: 0.1, // 防止重叠的力强度
-                nodeSize: 30, // 节点大小
-                nodeSpacing: 50, // 间距
-                alpha: 0.8, // 当前的迭代收敛阈值
-                alphaDecay: 0.028, // 迭代阈值的衰减率。范围 [0, 1]。0.028 对应迭代数为 300
-                alphaMin: 0.01, // 停止迭代的阈值
-                forceSimulation: null, // 自定义 force 方法，若不指定，则使用 d3.js 的方法
+                nodeStrength: 1000, // 节点作用力
+                edgeStrength: 200, // 边的作用力
                 preventOverlap: true, // 是否防止重叠
-                condense: true
+                nodeSize: 50, // 节点大小
+                nodeSpacing: 10, // 节点间距
+                minMovement: 5,
+                gravity: 10
             },
             // 节点在默认状态下的样式配置（style）和其他配置
             defaultNode: {
@@ -1219,13 +1226,6 @@ export default defineComponent({
             }
         }
 
-        // function sleep(delay) {
-        //     const start = (new Date()).getTime()
-        //     while ((new Date()).getTime() - start < delay) {
-        //         continue
-        //     }
-        // }
-
         // 子图相关-end-******************************************
 
         onMounted(() => {
@@ -1235,7 +1235,8 @@ export default defineComponent({
             const minimap = new G6.Minimap({
                 size: [document.getElementById('minimap').offsetWidth, document.getElementById('minimap').offsetHeight],
                 container: 'minimap',
-                type: 'default'
+                type: 'keyShape',
+                hideEdge: true
             })
             // 实例化 Menu 插件
             const menu = new G6.Menu({

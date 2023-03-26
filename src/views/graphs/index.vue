@@ -168,7 +168,7 @@
                     <el-table-column prop="description" label="子图描述" />
                     <el-table-column label="操作">
                         <template #default="scope">
-                            <el-button link @click="tosubgraphview(scope.row.graphId, scope.row.id)">
+                            <el-button link @click="toSubgraphView(scope.row.graphId, scope.row.id)">
                                 <template #icon>
                                     <el-icon @click="scope">
                                         <svg-icon name="graphvis" />
@@ -207,7 +207,6 @@
                 :files="uploadDialog.files"
                 action="#"
                 @on-success="uploadSuccess"
-                @on-change="uploadChange"
                 @http-request="upload"
             />
         </el-dialog>
@@ -225,8 +224,7 @@ import {
     createSubGraph,
     getSubgraphs,
     deleteSubGraphById,
-    downloadGraph,
-    getGraphAllData
+    downloadGraph
 } from '@/api/graph'
 import { useRouter } from 'vue-router/dist/vue-router'
 
@@ -385,10 +383,7 @@ export default defineComponent({
             visible: false,
             draggable: false,
             center: true,
-            files: [],
-            diffVisible: false,
-            oldStr: 'oldStr',
-            newStr: 'newStr'
+            files: []
         })
         const uploadDialogOpen = id => {
             uploadDialog.visible = true
@@ -423,23 +418,6 @@ export default defineComponent({
             }
         }
 
-        const uploadChange = (file, fileList) => {
-            console.log(file, fileList)
-            // if (fileList.length === 1) {
-            //     console.log(file.raw)
-            //     const reader = new FileReader()
-            //     reader.readAsText(file.raw)
-            //     reader.onload = function(e) {
-            //         const newStr = e.target.result
-            //         uploadDialog.newStr = newStr
-            //     }
-            //     getGraphAllData(uploadDialog.graphId).then(res => {
-            //         uploadDialog.oldStr = JSON.stringify(res, null, ' ')
-            //     })
-            //     uploadDialog.diffVisible = true
-            // }
-        }
-
         const getGraphList = () => {
             getGraphs(project.id).then(res => {
                 graphs.list = res.data
@@ -467,7 +445,7 @@ export default defineComponent({
             })
         }
 
-        const tosubgraphview = (graphId, id) => {
+        const toSubgraphView = (graphId, id) => {
             console.log(graphId)
             console.log(id)
             router.push({
@@ -525,10 +503,9 @@ export default defineComponent({
             uploadSuccess,
             toTableview,
             toGraphview,
-            tosubgraphview,
+            toSubgraphView,
             deleteSubGraph,
-            downloadGraphClick,
-            uploadChange
+            downloadGraphClick
         }
     }
 })
