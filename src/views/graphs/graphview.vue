@@ -751,7 +751,10 @@ export default defineComponent({
                         type: 'zoom-canvas',
                         enableOptimize: true
                     },
-                    'drag-node'
+                    'drag-node',
+                    {
+                        type: 'activate-relations'
+                    }
                 ] // 允许拖拽画布、放缩画布、拖拽节点、
             },
             layout: {
@@ -760,12 +763,11 @@ export default defineComponent({
                 preset: {
                     type: 'circular'
                 },
-                linkDistance: 120, // 边长度
-                nodeStrength: 1000, // 节点作用力
-                edgeStrength: 200, // 边的作用力
+                nodeStrength: 2000, // 节点作用力
+                edgeStrength: 500, // 边的作用力
                 preventOverlap: true, // 是否防止重叠
                 nodeSize: 50, // 节点大小
-                nodeSpacing: 10, // 节点间距
+                nodeSpacing: 50, // 节点间距
                 minMovement: 5,
                 gravity: 10
             },
