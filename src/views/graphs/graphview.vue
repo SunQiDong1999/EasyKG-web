@@ -761,7 +761,7 @@ export default defineComponent({
                 type: 'force2',
                 animate: true,
                 preset: {
-                    type: 'circular'
+                    type: 'grid'
                 },
                 nodeStrength: 2000, // 节点作用力
                 edgeStrength: 500, // 边的作用力
@@ -770,6 +770,8 @@ export default defineComponent({
                 nodeSpacing: 50, // 节点间距
                 minMovement: 5,
                 distanceThresholdMode: 'max',
+                maxIteration: 2000,
+                interval: 0.02,
                 gravity: 10
             },
             // 节点在默认状态下的样式配置（style）和其他配置
