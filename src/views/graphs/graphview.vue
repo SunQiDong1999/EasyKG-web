@@ -769,6 +769,7 @@ export default defineComponent({
                 nodeSize: 50, // 节点大小
                 nodeSpacing: 50, // 节点间距
                 minMovement: 5,
+                distanceThresholdMode: 'max',
                 gravity: 10
             },
             // 节点在默认状态下的样式配置（style）和其他配置
