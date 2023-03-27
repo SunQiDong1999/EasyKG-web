@@ -863,8 +863,7 @@ export default defineComponent({
                 edge.style = {
                     stroke: graph.colorMap[edge.label].selectedStroke
                 }
-                // edge.label = fittingString(edge.label, 100, 12)
-                edge.label = ''
+                edge.label = fittingString(edge.label, 100, 12)
             })
             G6.Util.processParallelEdges(g6Data.edges)
         }
