@@ -209,6 +209,6 @@ export const removeEntity = (id, entityId) => {
 
 export const downloadGraph = id => {
     window.open(
-        api.defaults.baseURL + '/graph/' + id + '/download'
+        api.defaults.baseURL + 'graph/' + id + '/download'
     )
 }

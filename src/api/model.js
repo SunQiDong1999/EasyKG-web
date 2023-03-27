@@ -33,7 +33,7 @@ export const getResult = id => {
 
 export const downloadResult = id => {
     window.open(
-        api.defaults.baseURL + '/model/' + id + '/download'
+        api.defaults.baseURL + 'model/' + id + '/download'
     )
 }
 
