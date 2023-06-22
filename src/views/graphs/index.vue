@@ -428,21 +428,39 @@ export default defineComponent({
         const router = useRouter()
 
         const toTableview = id => {
-            router.push({
-                name: 'tableview',
-                params: {
-                    id: id
-                }
-            })
+            if (id === 31) {
+                router.push({
+                    name: 'treetableview',
+                    params: {
+                        id: id
+                    }
+                })
+            } else {
+                router.push({
+                    name: 'tableview',
+                    params: {
+                        id: id
+                    }
+                })
+            }
         }
 
         const toGraphview = id => {
-            router.push({
-                name: 'graphview',
-                params: {
-                    id: id
-                }
-            })
+            if (id === 27 || id === 31) {
+                router.push({
+                    name: 'treegraphview',
+                    params: {
+                        id: id
+                    }
+                })
+            } else {
+                router.push({
+                    name: 'graphview',
+                    params: {
+                        id: id
+                    }
+                })
+            }
         }
 
         const toSubgraphView = (graphId, id) => {

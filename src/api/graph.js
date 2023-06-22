@@ -171,6 +171,17 @@ export const getEntityNeighbors = (id, entityId) => {
     )
 }
 
+export const getEntityNeighborsWithPagination = (id, entityId, size, page) => {
+    return api.get(
+        'graph/' + id + '/entities/' + entityId + '/neighbors-with-pagination', {
+            params: {
+                size: size,
+                page: page
+            }
+        }
+    )
+}
+
 export const getEntityDegreeNeighbors = (id, entityId, degree) => {
     return api.get(
         'graph/' + id + '/entities/' + entityId + '/neighborsby', {
@@ -210,5 +221,11 @@ export const removeEntity = (id, entityId) => {
 export const downloadGraph = id => {
     window.open(
         api.defaults.baseURL + 'graph/' + id + '/download'
+    )
+}
+
+export const getTreeList = id => {
+    return  api.get(
+        'graph/' + id + '/tree-list'
     )
 }

@@ -32,11 +32,33 @@ export default {
             }
         },
         {
+            path: '/treetableview/:id',
+            name: 'treetableview',
+            component: () => import('@/views/graphs/treetableview.vue'),
+            meta: {
+                title: '目录视图',
+                sidebar: false,
+                breadcrumb: true,
+                activeMenu: '/graphs'
+            }
+        },
+        {
             path: '/graphview/:id',
             name: 'graphview',
             component: () => import('@/views/graphs/graphview.vue'),
             meta: {
                 title: '图谱视图',
+                sidebar: false,
+                breadcrumb: true,
+                activeMenu: '/graphs'
+            }
+        },
+        {
+            path: '/treegraphview/:id',
+            name: 'treegraphview',
+            component: () => import('@/views/graphs/treegraphview.vue'),
+            meta: {
+                title: '树图视图',
                 sidebar: false,
                 breadcrumb: true,
                 activeMenu: '/graphs'
