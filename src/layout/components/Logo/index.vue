@@ -21,7 +21,7 @@ const logo = ref(imgLogo)
 
 <template>
     <router-link to="/projects" class="title" :class="{'is-link': settingsStore.dashboard.enable}" :title="title">
-        <img v-if="showLogo" :src="logo" class="logo">
+        <img v-if="false" :src="logo" class="logo">
         <span v-if="showTitle">{{ title }}</span>
     </router-link>
 </template>

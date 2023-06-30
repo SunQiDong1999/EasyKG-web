@@ -6,7 +6,9 @@ export default {
     name: 'models',
     meta: {
         title: '模型管理',
-        icon: 'models'
+        icon: 'models',
+        sidebar: false
+
     },
     children: [
         {

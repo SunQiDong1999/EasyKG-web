@@ -224,8 +224,15 @@ export const downloadGraph = id => {
     )
 }
 
-export const getTreeList = id => {
+export const getTreeList = (id, type, type2, page, size, name) => {
     return  api.get(
-        'graph/' + id + '/tree-list'
+        'graph/' + id + '/tree-list?type=' + type + '&type2=' + type2, {
+            params: {
+                size: size,
+                page: page,
+                name: name
+            }
+        }
+
     )
 }

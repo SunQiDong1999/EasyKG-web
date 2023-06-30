@@ -395,6 +395,7 @@ export default defineComponent({
             console.log('清空')
         }
         const upload = param => {
+            console.log('上传')
             const formData = new FormData()
             formData.append('file', param.file)
             uploadGraphData(uploadDialog.graphId, formData).then(res => {
@@ -428,39 +429,21 @@ export default defineComponent({
         const router = useRouter()
 
         const toTableview = id => {
-            if (id === 31) {
-                router.push({
-                    name: 'treetableview',
-                    params: {
-                        id: id
-                    }
-                })
-            } else {
-                router.push({
-                    name: 'tableview',
-                    params: {
-                        id: id
-                    }
-                })
-            }
+            router.push({
+                name: 'tableview',
+                params: {
+                    id: id
+                }
+            })
         }
 
         const toGraphview = id => {
-            if (id === 27 || id === 31) {
-                router.push({
-                    name: 'treegraphview',
-                    params: {
-                        id: id
-                    }
-                })
-            } else {
-                router.push({
-                    name: 'graphview',
-                    params: {
-                        id: id
-                    }
-                })
-            }
+            router.push({
+                name: 'graphview',
+                params: {
+                    id: id
+                }
+            })
         }
 
         const toSubgraphView = (graphId, id) => {

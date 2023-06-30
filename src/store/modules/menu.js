@@ -94,7 +94,7 @@ const useMenuStore = defineStore(
             },
             // 次导航数据
             sidebarMenus() {
-                console.log(this.allMenus.length > 0 ? this.allMenus[this.actived].children : [])
+                // console.log(this.allMenus.length > 0 ? this.allMenus[this.actived].children : [])
                 return this.allMenus.length > 0 ? this.allMenus[this.actived].children : []
             },
             // 次导航里第一个导航的路径

@@ -6,7 +6,8 @@ export default {
     name: 'graphs',
     meta: {
         title: '图谱管理',
-        icon: 'graphs'
+        icon: 'graphs',
+        sidebar: false
     },
     children: [
         {

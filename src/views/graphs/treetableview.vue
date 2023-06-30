@@ -6,14 +6,36 @@
             </template>
         </page-header>
         <page-main>
-            <el-container style="overflow-x: scroll;overflow-y: scroll">
+            <el-container>
                 <el-main>
-                    <el-scrollbar>
-                        <el-tree-v2
-                            :data="data"
-                            :props="props"
-                        />
-                    </el-scrollbar>
+                    <el-card shadow="never">
+                        <el-skeleton :rows="4" animated :loading="loading">
+                            <template #default>
+                                <el-tree-v2
+                                    :data="data"
+                                    :props="props"
+                                    :height="550"
+                                    style="font-size: 15px"
+                                >
+                                    <template #default="{ node }">
+                                        {{ handleID2NodeInfoMap(node.label) }}
+                                        <span v-if="id2NodeInfo.map[node.key].type ==='[TopicTag]'">
+                                            类别：{{ id2NodeInfo.map[node.key].name }}
+                                        </span>
+                                        <span v-else-if="id2NodeInfo.map[node.key].type === '[WeiboTag]'">
+                                            话题：{{ id2NodeInfo.map[node.key].name }}
+                                        </span>
+                                        <span v-else-if="id2NodeInfo.map[node.key].type === '[Weibo]'">
+                                            <span style="width: 100px">文本：{{ id2NodeInfo.map[node.key].text }}</span><br>
+                                            <span>是否隐喻：{{ id2NodeInfo.map[node.key].has_irony }}</span><br>
+                                            <span>是否讽刺：{{ id2NodeInfo.map[node.key].has_metaphor }}</span><br>
+                                            <span>情感：{{ id2NodeInfo.map[node.key].sentiment }}</span>
+                                        </span>
+                                    </template>
+                                </el-tree-v2>
+                            </template>
+                        </el-skeleton>
+                    </el-card>
                 </el-main>
             </el-container>
         </page-main>
@@ -137,7 +159,7 @@ export default defineComponent({
                         } else if (entityQueryForm.operators[index] === '=') {
                             queryList.push('e.' + attribute.name + ' ' + entityQueryForm.operators[index] + ' \'' + entityQueryForm.values[index] + '\'')
                         }
-                    } else if (attribute.type === 1 ||  attribute.type === 2) {
+                    } else if (attribute.type === 1 || attribute.type === 2) {
                         queryList.push('e.' + attribute.name + ' ' + entityQueryForm.operators[index] + ' ' + entityQueryForm.values[index])
                     }
                 }
@@ -171,7 +193,7 @@ export default defineComponent({
 
                 if (attribute.type === 0) {
                     relationQueryForm.conditions[index] = ['=', '=~']
-                } else if (attribute.type === 1 ||  attribute.type === 2) {
+                } else if (attribute.type === 1 || attribute.type === 2) {
                     relationQueryForm.conditions[index] = ['>', '>=', '=', '<=', '<']
                 } else if (attribute.type === 3) {
                     relationQueryForm.conditions[index] = ['=']
@@ -372,6 +394,19 @@ export default defineComponent({
             children: 'children'
         }
 
+        const loading = ref(true)
+
+        const id2NodeInfo = {
+            map: {}
+        }
+
+        const handleID2NodeInfoMap = label => {
+            const typeAndAttributes = label.split('::')
+            const nodeInfo = JSON.parse(typeAndAttributes[1])
+            nodeInfo.type = typeAndAttributes[0]
+            id2NodeInfo.map[nodeInfo.id] = nodeInfo
+        }
+
         onMounted(() => {
             const projectId = localStorage.getItem('projectId')
             getGraphById(graphId).then(res => {
@@ -393,7 +428,8 @@ export default defineComponent({
             })
             getTreeList(graphId).then(res => {
                 data.value = res.data
-                console.log(data)
+                loading.value = false
+                console.log(id2NodeInfo.map)
             })
         })
         return {
@@ -424,17 +460,17 @@ export default defineComponent({
             getHeadListByLabel,
             query,
             data,
-            props
+            props,
+            loading,
+            id2NodeInfo,
+            handleID2NodeInfoMap
         }
     }
 })
 </script>
-<style>
-.el-scrollbar .el-scrollbar__wrap {
-    overflow-x: hidden;
-}
-.el-tree>.el-tree-node {
-    min-width: 100%;
-    display:inline-block;
+
+<style lang="scss" scoped>
+::v-deep.el-descriptions__content{
+    max-width: 500px;
 }
 </style>

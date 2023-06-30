@@ -117,7 +117,11 @@ let asyncRoutes = [
             overview,
             ontologies,
             graphs,
-            models
+            models,
+            topic_tag_zhengzhi,
+            topic_tag_junshi,
+            topic_tag_wenhua,
+            graphview
         ]
     }
 ]
@@ -139,6 +143,10 @@ let mainRoutes = [
 
 import { setupLayouts } from 'virtual:generated-layouts'
 import generatedRoutes from 'virtual:generated-pages'
+import topic_tag_zhengzhi from '@/router/modules/topic_tag_zhengzhi'
+import topic_tag_junshi from '@/router/modules/topic_tag_junshi'
+import topic_tag_wenhua from '@/router/modules/topic_tag_wenhua'
+import graphview from '@/router/modules/graphview'
 
 if (useSettingsStore(pinia).app.routeBaseOn === 'filesystem') {
     constantRoutes = generatedRoutes.filter(item => {

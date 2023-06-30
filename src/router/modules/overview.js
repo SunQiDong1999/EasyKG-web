@@ -7,7 +7,8 @@ export default {
     name: 'overview',
     meta: {
         title: '项目概览',
-        icon: 'overview'
+        icon: 'overview',
+        sidebar: false
     },
     children: [
         {

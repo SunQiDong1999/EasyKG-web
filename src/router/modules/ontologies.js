@@ -6,7 +6,8 @@ export default {
     name: 'ontologies',
     meta: {
         title: '本体管理',
-        icon: 'ontologies'
+        icon: 'ontologies',
+        sidebar: false
     },
     children: [
         {
