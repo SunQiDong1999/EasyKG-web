@@ -107,17 +107,17 @@
                                         个
                                     </span>
                                 </el-descriptions-item>
-                                <el-descriptions-item align="center">
-                                    <template #label>
-                                        <span>子图数</span>
-                                    </template>
-                                    <span style="font-size: 30px;">
-                                        {{ graph.subgraphNum }}
-                                    </span>
-                                    <span>
-                                        个
-                                    </span>
-                                </el-descriptions-item>
+                                <!--                                <el-descriptions-item align="center">-->
+                                <!--                                    <template #label>-->
+                                <!--                                        <span>子图数</span>-->
+                                <!--                                    </template>-->
+                                <!--                                    <span style="font-size: 30px;">-->
+                                <!--                                        {{ graph.subgraphNum }}-->
+                                <!--                                    </span>-->
+                                <!--                                    <span>-->
+                                <!--                                        个-->
+                                <!--                                    </span>-->
+                                <!--                                </el-descriptions-item>-->
                                 <el-descriptions-item align="center">
                                     <template #label>
                                         <span>图谱描述</span>
@@ -642,17 +642,14 @@ import {
 import G6, { Algorithm } from '@antv/g6'
 import { getLabels, getOntologyColorMap, getTypes } from '@/api/project'
 import axios from 'axios'
-import { useRouter } from 'vue-router'
-import { ElDivider, ElMessage } from 'element-plus'
+import {  ElMessage } from 'element-plus'
 import { fittingString, uniqueFunc } from '@/views/graphs/graph_method'
 import { createSubgraphContent } from '@/api/subgraph'
 
 export default defineComponent({
     name: 'Tableview',
     setup() {
-        const router = useRouter()
-        const spacer = h(ElDivider, { direction: 'vertical' })
-        const graphId = router.currentRoute.value.params.id
+        const graphId = 33
         const graph = reactive({
             colorMap: {},
             labelAttributeMap: Map,
@@ -771,7 +768,7 @@ export default defineComponent({
                 nodeSpacing: 50, // 节点间距
                 minMovement: 5,
                 distanceThresholdMode: 'max',
-                maxIteration: 2000,
+                maxIteration: 200,
                 interval: 0.02,
                 gravity: 10
             },
@@ -1609,7 +1606,6 @@ export default defineComponent({
             SubgraphTableShow,
             subGraphs,
             handleSelectionChange,
-            spacer,
             graph,
             aside,
             pagination,

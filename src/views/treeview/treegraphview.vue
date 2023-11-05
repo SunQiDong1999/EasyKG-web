@@ -83,7 +83,11 @@
                         <el-descriptions-item label="文本">{{ entityInfo.info["text"] }}</el-descriptions-item>
                         <el-descriptions-item label="是否隐喻">{{ num2String(entityInfo.info["has_irony"]) }}</el-descriptions-item>
                         <el-descriptions-item label="是否讽刺">{{ num2String(entityInfo.info["has_metaphor"]) }}</el-descriptions-item>
-                        <el-descriptions-item label="情&ensp;&ensp;&ensp;&ensp;感">{{ entityInfo.info["sentiment"] }}</el-descriptions-item>
+                        <el-descriptions-item label="情&ensp;&ensp;&ensp;&ensp;感">
+                            <el-descriptions column="3" border>
+                                <el-descriptions-item v-for="(v,k) in getQingganDesc(entityInfo.info['sentiment'])" :key="k" :label="k">{{ getSentimentDesc(v) }}</el-descriptions-item>
+                            </el-descriptions>
+                        </el-descriptions-item>
                     </el-descriptions>
                 </el-main>
             </el-container>
@@ -207,6 +211,11 @@ export default defineComponent({
             }
         }
 
+        const getQingganDesc = sentiment => {
+            if (sentiment != null && sentiment.length > 0) {
+                return JSON.parse(sentiment.replaceAll('\'', '"').replaceAll('：', ':').replaceAll('None', '0'))
+            }
+        }
         // 图配置
         const g6Config = {
             container: 'mountNode', // String | HTMLElement，必须，在 Step 1 中创建的容器 id 或容器本身
@@ -521,7 +530,22 @@ export default defineComponent({
             pagination.page = 1
             pageChange()
         }
-
+        const getSentimentDesc = s => {
+            s = parseInt(s)
+            switch (s) {
+                case -2:
+                    return '极负 '
+                case -1:
+                    return '负向 '
+                case 0:
+                    return '中性 '
+                case 1:
+                    return '正向 '
+                case 2:
+                    return '极正'
+            }
+            return s
+        }
         const selfOptionQuery = () => {
             // console.log(query)
             query.entity = ''
@@ -714,10 +738,10 @@ export default defineComponent({
                     const outDiv = document.createElement('el-card')
                     outDiv.style.width = '180px'
                     outDiv.innerHTML = '<el-menu>' +
-                        '<el-menu-item index="DFS">深度优先搜索</el-menu-item> <br>' +
-                        '<el-menu-item index="BFS">广度优先搜索</el-menu-item> <br>' +
-                        '<el-menu-item index="shortestPath">最短路径</el-menu-item> <br>' +
-                        '<el-menu-item index="expand">展开</el-menu-item> <br>' +
+                        // '<el-menu-item index="DFS">深度优先搜索</el-menu-item> <br>' +
+                        // '<el-menu-item index="BFS">广度优先搜索</el-menu-item> <br>' +
+                        // '<el-menu-item index="shortestPath">最短路径</el-menu-item> <br>' +
+                        // '<el-menu-item index="expand">展开</el-menu-item> <br>' +
                         '<el-menu-item index="next">下翻</el-menu-item> <br>' +
                         '<el-menu-item index="prev">上翻</el-menu-item> <br>' +
                         '</el-menu>'
@@ -1187,7 +1211,9 @@ export default defineComponent({
             expandDialog,
             expandEntityDegree,
             num2String,
-            num2Bool
+            num2Bool,
+            getQingganDesc,
+            getSentimentDesc
         }
     }
 })

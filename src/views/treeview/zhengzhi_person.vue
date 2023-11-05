@@ -135,7 +135,7 @@ export default defineComponent({
         }
 
         const doFilter = () => {
-            pagination.page = 0
+            pagination.page = 1
             pageChange()
         }
 

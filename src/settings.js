@@ -76,7 +76,7 @@ let globalSettings = {
     // 底部版权
     copyright: {
         // 是否开启，同时在路由 meta 对象里可以单独设置某个路由是否显示底部版权信息
-        enable: true,
+        enable: false,
         // 版权信息配置，格式为：Copyright © [dates] <company> <beian>
         dates: '2020-2022',
         company: 'EasyKG',

@@ -121,7 +121,8 @@ let asyncRoutes = [
             topic_tag_zhengzhi,
             topic_tag_junshi,
             topic_tag_wenhua,
-            graphview
+            graphview,
+            renzhitupu
         ]
     }
 ]
@@ -147,6 +148,7 @@ import topic_tag_zhengzhi from '@/router/modules/topic_tag_zhengzhi'
 import topic_tag_junshi from '@/router/modules/topic_tag_junshi'
 import topic_tag_wenhua from '@/router/modules/topic_tag_wenhua'
 import graphview from '@/router/modules/graphview'
+import renzhitupu from '@/router/modules/renzhitupu'
 
 if (useSettingsStore(pinia).app.routeBaseOn === 'filesystem') {
     constantRoutes = generatedRoutes.filter(item => {

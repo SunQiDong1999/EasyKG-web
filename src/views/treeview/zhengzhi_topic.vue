@@ -60,8 +60,8 @@
                                     }}
                                 </el-descriptions-item>
                                 <el-descriptions-item label="情&ensp;&ensp;&ensp;&ensp;感">
-                                    <el-descriptions column="10" border>
-                                        <el-descriptions-item v-for="(v,k) in id2NodeInfo.map[weibo.id].qinggan" :key="k" :label="k">{{ getSentimentDesc(v) + '(' + v +')' }}</el-descriptions-item>
+                                    <el-descriptions column="3" border>
+                                        <el-descriptions-item v-for="(v,k) in id2NodeInfo.map[weibo.id].qinggan" :key="k" :label="k">{{ getSentimentDesc(v) }}</el-descriptions-item>
                                     </el-descriptions>
                                 </el-descriptions-item>
                             </el-descriptions>
