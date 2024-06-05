@@ -6,3 +6,5 @@ dist-ssr
 .eslintrc-auto-import.json
 public/icons
 src/assets/sprites/*.*
+src/assets/images/img
+src/assets/images/政治人物图片
